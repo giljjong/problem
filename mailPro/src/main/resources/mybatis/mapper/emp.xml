@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gdu.mail.mapper.EmpMapper">
+
+	<select id="selectEmpByMap" parameterType="map" resultType="EmpDTO">
+		SELECT EMP_NO, EMP_PW, NAME, BIRTHDAY
+		  FROM EMPLOYEES
+		<where>
+			<if test="name != null">AND NAME = #{name}</if>
+			<if test="empNo != null">AND EMP_NO = #{empNo}</if>
+			<if test="empPw != null">AND EMP_PW = #{empPw}</if>
+		</where>
+	</select>
+	
+	<insert id="insertDept" parameterType="String">
+		INSERT INTO DEPARTMENTS
+			(DEPT_NO, DEPT_NAME)
+		VALUES
+			(DEPT_SEQ.NEXTVAL, #{deptName})
+	</insert>
+	
+	<insert id="insertPosition" parameterType="String">
+		INSERT INTO POSITION
+			(JOB_NO, JOB_NAME)
+		VALUES
+			(POSITION_SEQ.NEXTVAL, #{jobName})
+	</insert>
+	
+	<insert id="insertEmp" parameterType="EmpDTO">
+		INSERT INTO EMPLOYEES
+			(EMP_NO, EMP_PW, NAME, BIRTHDAY, JOIN_DATE, PROF_IMG, INFO_MODIFY_DATE, STATUS, SALARY, JOB_NO, DEPT_NO)
+		VALUES
+			(TO_NUMBER(TO_CHAR(SYSDATE,'YYMM')) || LPAD(EMP_SEQ.NEXTVAL,4,0), #{empPw}, #{name}, #{birthday}, SYSDATE, NULL, SYSDATE, '정상', 0, POSITION_SEQ.CURRVAL, DEPT_SEQ.CURRVAL)
+	</insert>
+
+</mapper>

@@ -1,0 +1,154 @@
+package com.gdu.mail.service;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.gdu.mail.domain.EmployeesDTO;
+import com.gdu.mail.domain.JamesUserDTO;
+import com.gdu.mail.mapper.EmpMapper;
+import com.gdu.mail.mapper.MailMapper;
+import com.gdu.mail.util.SecurityUtil;
+
+@Service
+public class EmpServiceImpl implements EmpService {
+
+	@Autowired
+	private EmpMapper empMapper;
+	
+	@Autowired
+	private MailMapper mailMapper;
+	
+	@Autowired
+	private SecurityUtil securityUtil;
+
+	@Transactional
+	@Override
+	public void join(HttpServletRequest request, HttpServletResponse response) {
+
+		String password = request.getParameter("empPw");
+		String name = request.getParameter("name");
+		String birthday = request.getParameter("birthday");
+		String deptName = request.getParameter("deptName");
+		String jobName = request.getParameter("jobName");
+		
+		String empPw = securityUtil.sha256(password);
+		name = securityUtil.preventXSS(name);
+		
+		EmployeesDTO emp = EmployeesDTO.builder()
+				.empPw(empPw)
+				.name(name)
+				.birthday(birthday)
+				.build();
+		
+		int result = empMapper.insertDept(deptName);
+		result += empMapper.insertPosition(jobName);
+		result += empMapper.insertEmp(emp);
+		
+		try {
+			
+			response.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = response.getWriter();
+			
+			if(result > 2) {
+				
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("name", name);
+				
+				EmployeesDTO loginUser =  empMapper.selectEmpByMap(map);
+				request.getSession().setAttribute("loginUser", loginUser);
+				
+				int empNo = loginUser.getEmpNo();
+				String userName = empNo + "@sharegram.com";
+				
+				JamesUserDTO jamesUser = JamesUserDTO.builder()
+						.userName(userName)
+						.password(password)
+						.build();
+				
+				int mailResult = mailMapper.insertJamesUser(jamesUser);
+				
+				if(mailResult > 0) {
+					request.getSession().setAttribute("userMail", jamesUser);
+				}
+				
+				out.println("<script>");
+				out.println("alert('회원 가입 되었습니다.');");
+				out.println("location.href='"+ request.getContextPath() +"';");
+				out.println("</script>");
+			} else {
+				out.println("<script>");
+				out.println("alert('회원 가입이 실패하였습니다.');");
+				out.println("history.go(-1);");
+				out.println("</script>");
+			}
+			out.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void login(HttpServletRequest request, HttpServletResponse response) {
+		Optional<String> opt = Optional.of(request.getParameter("empNo"));
+		int empNo = Integer.parseInt(opt.orElse("0"));
+		String empPw = request.getParameter("empPw");
+
+		empPw = securityUtil.sha256(empPw);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("empNo", empNo);
+		map.put("empPw", empPw);
+	
+		EmployeesDTO loginUser = empMapper.selectEmpByMap(map);
+
+		if(loginUser != null) {
+			
+			request.getSession().setAttribute("loginUser", loginUser);
+			
+			String userName = loginUser.getEmpNo() + "@sharegram.com";
+			
+			JamesUserDTO mailUser = mailMapper.selectJamesUserByEmpNo(userName);
+			
+			if(mailUser != null) {
+				request.getSession().setAttribute("mailUser", mailUser);
+			}
+
+			try {
+				response.sendRedirect(request.getContextPath() + "/mail/form");
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+
+		else {
+
+			try {
+				
+				response.setContentType("text/html; charset=UTF-8");
+				PrintWriter out = response.getWriter();
+				
+				out.println("<script>");
+				out.println("alert('일치하는 회원 정보가 없습니다.');");
+				out.println("location.href='" + request.getContextPath() + "';");
+				out.println("</script>");
+				out.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+}

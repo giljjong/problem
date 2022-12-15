@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gdu.semi.mapper.UploadBoardMapper">
+	
+	<select id="selectUploadList" resultType="UploadBoardDTO">
+		SELECT U.UPLOAD_BOARD_NO, U.ID, U.UPLOAD_TITLE, U.UPLOAD_CONTENT, U.IP, U.CREATE_DATE, U.MODIFY_DATE, U.HIT,
+		(SELECT COUNT(*) FROM ATTACH A WHERE U.UPLOAD_BOARD_NO = A.UPLOAD_BOARD_NO) AS ATTACH_CTN
+		FROM UPLOAD_BOARD U
+	</select>
+	
+<!-- 	<insert id="insertUpload" parameterType="UploadBoardDTO">
+		<selectKey keyProperty="uploadBoardNo" resultType="int" order="b>
+		
+		</selectKey>
+	</insert> -->
+	
+</mapper>
