@@ -14,6 +14,7 @@
 		<typeAlias type="com.gdu.mail.domain.DepartmentsDTO" alias="DeptDTO" />
 		<typeAlias type="com.gdu.mail.domain.EmployeesDTO" alias="EmpDTO" />
 		<typeAlias type="com.gdu.mail.domain.PositionDTO" alias="PositionDTO" />
-		<typeAlias type="com.gdu.mail.domain.JamesUserDTO" alias="JamesUserDTO" />
+		<typeAlias type="com.gdu.mail.domain.EmpAddrDTO" alias="EmpAddrDTO" />
+		<typeAlias type="com.gdu.mail.domain.MailDTO" alias="MailDTO" />
 	</typeAliases>
 </configuration>

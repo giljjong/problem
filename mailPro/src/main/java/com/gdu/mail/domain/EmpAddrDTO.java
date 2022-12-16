@@ -9,9 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class JamesUserDTO {
-	private String userName;
-	private String passwordHashAlgorithm;
+public class EmpAddrDTO {
+	
+	private int empAddrNo;
+	private int empNo;
+	private String name;
 	private String password;
-	private int version;
+	private String phone;
+	private String email;
+	private String fax;
+	private String memo;
+	
 }

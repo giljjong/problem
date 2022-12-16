@@ -8,11 +8,14 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script src="${contextPath}/resources/js/jquery-3.6.1.min.js"></script>
+<script src="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.js"></script>
+<script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
+<link rel="stylesheet" href="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.css">
 <script>
 
 		$(document).ready(function(){
 		
-		$('#content').summernote({
+		$('#mailContent').summernote({
 			width: 800,
 			height: 400,
 			lang: 'ko-KR',
@@ -38,12 +41,17 @@
 						dataType: 'json',    // HDD에 저장된 이미지의 경로를 json으로 받아옴
 						success: function(resData){
 							
-							$('#content').summernote('insertImage', resData.src);
+							$('#mailContent').summernote('insertImage', resData.src);
 						}
 					});  // ajax
 				}  // onImageUpload
 			}  // callbacks
 		});
+		
+		$('#btn_send').click(function(){
+			$('#frm_send').submit();
+		});
+	})
 </script>
 </head>
 <body>
@@ -53,27 +61,29 @@
 		
 		<hr>
 		
-		<input type="button" value="보내기">&nbsp;&nbsp;&nbsp;
+		<input type="button" id="btn_send" value="보내기">&nbsp;&nbsp;&nbsp;
 		<input type="button" value="임시저장">&nbsp;&nbsp;&nbsp;
 		<input type="button" value="미리보기">&nbsp;&nbsp;&nbsp;
 		<input type="button" value="내게쓰기">&nbsp;&nbsp;&nbsp;
 		
 		<hr>
 		
-		<input type="text" name="from" value="${mailUser.userName}" readonly><br>
-		
-		<label for="toName">받는사람</label>
-		<input type="text" name="toName" id="toName"><br>
-		
-		<label for="cc">참조</label>
-		<input type="text" name="cc" id="cc"><br>
-		
-		<label for="title">제목</label>
-		<input type="text" name="title" id="title"><br>
-		<div>
-			<label for="content">내용</label>
-			<textarea id="content" name="content"></textarea>
-		</div>
+		<form action="${contextPath}/mail/send" id="frm_send" method="post">
+			<input type="text" name="from" value="${mailUser.email}" readonly><br>
+			
+			<label for="strTo">받는사람</label>
+			<input type="text" name="strTo" id="strTo"><br>
+			
+			<label for="strCc">참조</label>
+			<input type="text" name="strCc" id="strCc"><br>
+			
+			<label for="subject">제목</label>
+			<input type="text" name="subject" id="subject"><br>
+			<div>
+				<label for="mailContent">내용</label>
+				<textarea id="mailContent" name="mailContent"></textarea>
+			</div>
+		</form>
 		
 	</div>
 </body>

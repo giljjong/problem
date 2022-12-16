@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.EmployeesDTO;
-import com.gdu.mail.domain.JamesUserDTO;
+import com.gdu.mail.mapper.AddrMapper;
 import com.gdu.mail.mapper.EmpMapper;
 import com.gdu.mail.mapper.MailMapper;
 import com.gdu.mail.util.SecurityUtil;
@@ -27,6 +28,9 @@ public class EmpServiceImpl implements EmpService {
 	
 	@Autowired
 	private MailMapper mailMapper;
+	
+	@Autowired
+	private AddrMapper addrMapper;
 	
 	@Autowired
 	private SecurityUtil securityUtil;
@@ -68,17 +72,20 @@ public class EmpServiceImpl implements EmpService {
 				request.getSession().setAttribute("loginUser", loginUser);
 				
 				int empNo = loginUser.getEmpNo();
-				String userName = empNo + "@sharegram.com";
+				String email = empNo + "@sharegram.com";
 				
-				JamesUserDTO jamesUser = JamesUserDTO.builder()
-						.userName(userName)
+				EmpAddrDTO empInfo = EmpAddrDTO.builder()
+						.empNo(empNo)
+						.name(name)
+						.email(email)
 						.password(password)
 						.build();
 				
-				int mailResult = mailMapper.insertJamesUser(jamesUser);
+				int mailResult = mailMapper.insertJamesUser(empInfo);
+				mailResult += addrMapper.insertEmpAddr(empInfo);
 				
-				if(mailResult > 0) {
-					request.getSession().setAttribute("userMail", jamesUser);
+				if(mailResult > 1) {
+					request.getSession().setAttribute("mailUser", empInfo);
 				}
 				
 				out.println("<script>");
@@ -115,9 +122,7 @@ public class EmpServiceImpl implements EmpService {
 			
 			request.getSession().setAttribute("loginUser", loginUser);
 			
-			String userName = loginUser.getEmpNo() + "@sharegram.com";
-			
-			JamesUserDTO mailUser = mailMapper.selectJamesUserByEmpNo(userName);
+			EmpAddrDTO mailUser = addrMapper.selectEmpAddrByNo(empNo);
 			
 			if(mailUser != null) {
 				request.getSession().setAttribute("mailUser", mailUser);
@@ -129,9 +134,7 @@ public class EmpServiceImpl implements EmpService {
 				e.printStackTrace();
 			}
 			
-		}
-
-		else {
+		} else {
 
 			try {
 				

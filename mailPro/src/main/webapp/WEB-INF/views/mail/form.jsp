@@ -17,7 +17,7 @@
                     <h1 class="page-header"> 받은 메일</h1>
                 </div>
             </div>
-            
+            <span>${loginUser.empNo} ${mailUser.email} ${mailUser.password} </span>
             <!-- /.row -->
             <div class="row">
                 <div class="col-lg-12">
