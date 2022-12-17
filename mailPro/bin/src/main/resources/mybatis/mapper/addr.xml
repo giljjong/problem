@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gdu.mail.mapper.AddrMapper">
+	
+	<select id="selectEmpAddrByNo" parameterType="int" resultType="EmpAddrDTO">
+		SELECT EMP_ADDR_NO, EMP_NO, NAME, PASSWORD, PHONE, EMAIL, FAX, MEMO
+		  FROM EMP_ADDR
+		 WHERE EMP_NO = #{empNo}
+	</select>
+	
+	<insert id="insertEmpAddr" parameterType="EmpAddrDTO">
+		INSERT INTO EMP_ADDR
+			(EMP_ADDR_NO, EMP_NO, NAME, PASSWORD, PHONE, EMAIL, FAX, MEMO)
+		VALUES
+			(EMP_ADDR_SEQ.NEXTVAL, #{empNo}, #{name}, #{password}, NULL, #{email}, NULL, NULL)
+	</insert>
+	
+
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.gdu.mail.domain.DepartmentsDTO" alias="DeptDTO" />
+		<typeAlias type="com.gdu.mail.domain.EmployeesDTO" alias="EmpDTO" />
+		<typeAlias type="com.gdu.mail.domain.PositionDTO" alias="PositionDTO" />
+		<typeAlias type="com.gdu.mail.domain.EmpAddrDTO" alias="EmpAddrDTO" />
+		<typeAlias type="com.gdu.mail.domain.MailDTO" alias="MailDTO" />
+	</typeAliases>
+</configuration>

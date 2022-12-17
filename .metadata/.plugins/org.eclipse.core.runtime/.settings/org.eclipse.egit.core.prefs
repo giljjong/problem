@@ -1,4 +1,4 @@
-GitRepositoriesView.GitDirectories=C\:\\problem\\groupware9\\.git;C\:\\problem\\.git;
-GitRepositoriesView.GitDirectories.relative=groupware9\\.git;.git;
+GitRepositoriesView.GitDirectories=C\:\\SelfStudyJava\\groupware9\\.git;C\:\\problem\\groupware9\\.git;C\:\\problem\\.git;
+GitRepositoriesView.GitDirectories.relative=C\:\\SelfStudyJava\\groupware9\\.git;groupware9\\.git;.git;
 core_autoIgnoreDerivedResources=false
 eclipse.preferences.version=1

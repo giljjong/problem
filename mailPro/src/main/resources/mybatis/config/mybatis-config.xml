@@ -16,5 +16,6 @@
 		<typeAlias type="com.gdu.mail.domain.PositionDTO" alias="PositionDTO" />
 		<typeAlias type="com.gdu.mail.domain.EmpAddrDTO" alias="EmpAddrDTO" />
 		<typeAlias type="com.gdu.mail.domain.MailDTO" alias="MailDTO" />
+		<typeAlias type="com.gdu.mail.domain.ReceiversDTO" alias="ReceiversDTO" />
 	</typeAliases>
 </configuration>

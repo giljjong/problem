@@ -1,7 +1,7 @@
 package com.gdu.mail.domain;
 
-import java.sql.Date;
-import java.util.ArrayList;
+
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +25,11 @@ public class MailDTO {
 	// 추가 정보
 	private String empName;
 	private String from;
+	private String receiveDate;
+	
+	// 읽음 및 삭제 정보
+	private String readCheck;
+	private String deleteCheck;
 	
 	// 받는 사람
 	private String strTo;

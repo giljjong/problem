@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gdu.mail.mapper.MailMapper">
+	
+	<insert id="insertJamesUser" parameterType="EmpAddrDTO">
+		INSERT INTO JAMES_USER
+			(USER_NAME, PASSWORD_HASH_ALGORITHM, PASSWORD, VERSION)
+		VALUES
+			(#{email}, 'NONE', #{password}, 1)
+	</insert>
+	
+	<select id="selectMailByEmail" parameterType="String" resultType="MailDTO">
+		SELECT MAIL_NO, SENDER, SUBJECT, MAIL_CONTENT, SEND_DATE, SEND_STATUS, TAG_NO
+		  FROM MAIL
+		 WHERE SENDER = #{email}
+	</select>
+	
+	<insert id="insertMail" parameterType="MailDTO">
+		INSERT INTO MAIL
+			(MAIL_NO, EMP_NO, SENDER, SUBJECT, MAIL_CONTENT, SEND_DATE, SEND_STATUS, TAG_NO)
+		VALUES
+			(MAIL_SEQ.NEXTVAL, #{empNo}, #{from}, #{subject}, #{mailContent}, SYSDATE, NULL, 0)
+	</insert>
+	
+	<insert id="insertReceivers" parameterType="int">
+		INSERT INTO RECEIVERS
+			(EMP_NO, MAIL_NO)
+		VALUES
+			(#{empNo}, MAIL_SEQ.CURRVAL)
+	</insert>
+
+</mapper>
