@@ -20,3 +20,25 @@ META-INF/
 
 # README 파일 제외
 README.md
+
+.metadata
+
+bin/
+
+tmp/
+
+*.tmp
+
+*.bak
+
+*.swp
+
+*~.nib
+
+local.properties
+
+.settings/
+
+.loadpath
+
+.recommenders
