@@ -17,6 +17,7 @@
 		<result column="TAG_NO" property="tagNo" />
 		<result column="READ_CHECK" property="readCheck" />
 		<result column="DELETE_CHECK" property="deleteCheck" />
+		<result column="RECEIVE_TYPE" property="receiveType" />
 	</resultMap>
 
 	
@@ -27,10 +28,13 @@
 			(#{email}, 'NONE', #{password}, 1)
 	</insert>
 	
-	<select id="selectMailByEmail" parameterType="String" resultType="MailDTO">
+	<select id="selectMailByMap" parameterType="map" resultType="MailDTO">
 		SELECT MAIL_NO, EMP_NO, SENDER, SUBJECT, MAIL_CONTENT, SEND_DATE, SEND_STATUS, TAG_NO
 		  FROM MAIL
-		 WHERE SENDER = #{email}
+		  <where>
+		  	<if test="email != null">AND SENDER = #{email}</if>
+		  	<if test="mailNo != null">AND MAIL_NO = #{mailNo}</if>
+		  </where>
 	</select>
 	
 	<insert id="insertMail" parameterType="MailDTO">
@@ -40,14 +44,14 @@
 			(MAIL_SEQ.NEXTVAL, #{empNo}, #{from}, #{subject}, #{mailContent}, SYSDATE, NULL, 0)
 	</insert>
 	
-	<insert id="insertReceivers" parameterType="int">
+	<insert id="insertReceivers" parameterType="map">
 		INSERT INTO RECEIVERS
-			(EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK)
+			(EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE)
 		VALUES
-			(#{empNo}, MAIL_SEQ.CURRVAL, 'N', 'N')
+			(#{empNo}, MAIL_SEQ.CURRVAL, 'N', 'N', #{receiveType})
 	</insert>
 	
-	<select id="selectReceiveCount" parameterType="int" resultType="int">
+	<select id="selectReceiveMailCount" parameterType="int" resultType="int">
 		SELECT COUNT(*)
  		  FROM MAIL M INNER JOIN RECEIVERS R
     		ON M.MAIL_NO = R.MAIL_NO
@@ -55,10 +59,10 @@
    		   AND R.EMP_NO = #{empNo}
 	</select>
 	
-	<select id="selectReceiveList" parameterType="map" resultMap="MailMap">
+	<select id="selectReceiveMailList" parameterType="map" resultMap="MailMap">
 		SELECT B.MAIL_NO, B.EMP_NO, B.SENDER, B.SUBJECT, B.MAIL_CONTENT, B.SEND_DATE, B.SEND_STATUS, B.TAG_NO, B.READ_CHECK, B.DELETE_CHECK
   		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.SEND_DATE DESC) AS RN, A.MAIL_NO, A.EMP_NO, A.SENDER, A.SUBJECT, A.MAIL_CONTENT, A.SEND_DATE, A.SEND_STATUS, A.TAG_NO, A.READ_CHECK, A.DELETE_CHECK
-          		  FROM (SELECT M.MAIL_NO, R.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
+          		  FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
                   		  FROM MAIL M INNER JOIN RECEIVERS R
                     		ON M.MAIL_NO = R.MAIL_NO
                  		 WHERE R.DELETE_CHECK = 'N'
@@ -73,6 +77,12 @@
  		 WHERE R.DELETE_CHECK = 'N'
    		   AND R.READ_CHECK = 'N'
    		   AND R.EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectReceiverList" parameterType="int" resultType="ReceiversDTO">
+		SELECT EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
+  		  FROM RECEIVERS
+ 		 WHERE MAIL_NO = #{mailNo}
 	</select>
 
 </mapper>

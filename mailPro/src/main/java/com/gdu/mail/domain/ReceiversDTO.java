@@ -14,4 +14,5 @@ public class ReceiversDTO {
 	private int maiNo;
 	private String readCheck;
 	private String deleteCheck;
+	private String receiveType;
 }

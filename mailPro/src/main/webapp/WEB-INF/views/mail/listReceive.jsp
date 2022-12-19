@@ -7,6 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<script src="${contextPath}/resources/js/jquery-3.6.1.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
 	.mail_toolbar {
@@ -63,7 +64,14 @@
 									<c:if test="${mail.readCheck eq 'Y'}"><i class="fa-regular fa-envelope-open"></i></c:if>
 								</td>
 								<td> <c:if test="${mail.empName != null}">${mail.empName}</c:if> </td>
-								<td> <a href="${contextPath}/mail/receive/detail?mailNo=${mail.mailNo}">${mail.subject}</a> </td>
+								<td>
+									<c:if test="${mail.readCheck eq 'N'}">
+										<strong><a href="${contextPath}/mail/receive/detail?mailNo=${mail.mailNo}">${mail.subject}</a></strong>
+									</c:if>
+									<c:if test="${mail.readCheck eq 'Y'}">
+										<a href="${contextPath}/mail/receive/detail?mailNo=${mail.mailNo}">${mail.subject}</a>
+									</c:if>
+								</td>
 								<td>${mail.receiveDate}</td>
 							</tr>
 						</c:forEach>

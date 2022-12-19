@@ -20,4 +20,7 @@ public class EmpAddrDTO {
 	private String fax;
 	private String memo;
 	
+	// 추가 항목
+	private String receiveType;
+	
 }

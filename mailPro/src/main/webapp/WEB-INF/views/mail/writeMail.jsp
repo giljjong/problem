@@ -51,7 +51,27 @@
 		$('#btn_send').click(function(){
 			$('#frm_send').submit();
 		});
+		
+		fn_getMailInfo();
+		
 	})
+	
+	function fn_getMailInfo(){
+		if($('#mailNo').val() != "") {
+			$.ajax({
+				type : 'post',
+				url : '${contextPath}/mail/get/reply',
+				data : 'mailNo=' + $('#mailNo').val(),
+				dataType : 'json',
+				success : function(resData) {
+					$.each(resData.addrList, function(i, addr){
+						console.log(addr);
+						
+					})
+				}
+			});
+		}
+	}
 </script>
 </head>
 <body>
@@ -70,9 +90,10 @@
 		
 		<form action="${contextPath}/mail/send" id="frm_send" method="post">
 			<input type="text" name="from" value="${mailUser.email}" readonly><br>
+			<input type="hidden" id="mailNo" name="mailNo" value="${mailNo}" readonly><br>
 			
 			<label for="strTo">받는사람</label>
-			<input type="text" name="strTo" id="strTo"><br>
+			<input type="text" name="strTo" id="strTo" value="${email}"><br>
 			
 			<label for="strCc">참조</label>
 			<input type="text" name="strCc" id="strCc"><br>

@@ -1,9 +1,11 @@
 package com.gdu.mail.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.MailDTO;
+import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.mapper.AddrMapper;
 import com.gdu.mail.mapper.EmpMapper;
 import com.gdu.mail.mapper.MailMapper;
@@ -49,7 +53,6 @@ public class MailServiceImpl implements MailService {
 		mail.setEmpNo(empNo);
 		
 		mail.setToAddr(mail.getStrTo().split(";"));
-		System.out.println(mail.getToAddr().toString());
 		
     	if (!mail.getStrCc().equals("")) mail.setCcAddr(mail.getStrCc().split(";"));
     	
@@ -58,21 +61,38 @@ public class MailServiceImpl implements MailService {
     		mailUtil.sendMail(mailUser, mail);
     		mailMapper.insertMail(mail);
     		String[] toAddrs = mail.getToAddr();
+    		String[] toCcs = mail.getCcAddr();
     		
     		Map<String, Object> map = new HashMap<String, Object>();
-    		int recieveEmp = 0;
+    		int receiveEmp = 0;
     		
     		for(int i = 0; i < toAddrs.length; i++) {
+    			receiveEmp = Integer.parseInt(toAddrs[i].substring(0, toAddrs[i].indexOf("@")));
+    			map.put("empNo", receiveEmp);
     			
-    			map.put("empNo", toAddrs[i].substring(0, toAddrs[i].indexOf("@")));
-    			
-    			recieveEmp = empMapper.selectEmpByMap(map).getEmpNo();
-    			mailMapper.insertReceivers(recieveEmp);
-    			
-    			recieveEmp = 0;
+    			if(empMapper.selectEmpByMap(map) != null) {
+    				map.put("receiveType", "To");
+    				mailMapper.insertReceivers(map);
+    			}
+    			receiveEmp = 0;
     			map.clear();
 
             }
+    		
+    		if(toCcs != null) {
+    			for(int i = 0; i < toCcs.length; i++) {
+        			receiveEmp = Integer.parseInt(toCcs[i].substring(0, toCcs[i].indexOf("@")));
+        			map.put("empNo", receiveEmp);
+        			
+        			if(empMapper.selectEmpByMap(map) != null) {
+        				map.put("receiveType", "cc");
+        				mailMapper.insertReceivers(map);
+        			}
+        			receiveEmp = 0;
+        			map.clear();
+
+                }
+    		}
     		
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -81,7 +101,7 @@ public class MailServiceImpl implements MailService {
 	}
 	
 	@Override
-	public void selectReceiveMail(HttpServletRequest request, Model model) {
+	public void getReceiveMailList(HttpServletRequest request, Model model) {
 		Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
 		int page = Integer.parseInt(opt.orElse("1"));
 		
@@ -90,7 +110,7 @@ public class MailServiceImpl implements MailService {
 		
 		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
 		
-		int totalRecord = mailMapper.selectReceiveCount(empNo);
+		int totalRecord = mailMapper.selectReceiveMailCount(empNo);
 		
 		pageUtil.setPageUtil(page, totalRecord, recordPerPage);
 		
@@ -99,10 +119,10 @@ public class MailServiceImpl implements MailService {
 		map.put("begin", pageUtil.getBegin());
 		map.put("end", pageUtil.getEnd());
 		
-		List<MailDTO> mailList = mailMapper.selectReceiveList(map);
+		List<MailDTO> mailList = mailMapper.selectReceiveMailList(map);
 		
 		for (MailDTO mailInfo : mailList) {
-            
+            System.out.println(mailInfo.getEmpNo());
 			EmpAddrDTO addr = addrMapper.selectEmpAddrByNo(mailInfo.getEmpNo());
 			
 			if(addr.getName() != null) {
@@ -111,8 +131,6 @@ public class MailServiceImpl implements MailService {
 			
 			Date sendDate = mailInfo.getSendDate();
 			SimpleDateFormat dateFormat;
-			
-			System.out.println(mailUtil.checkDateFormat(sendDate));
 			
 			switch(mailUtil.checkDateFormat(sendDate)) {
 			case "overYear" : dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm");
@@ -138,5 +156,39 @@ public class MailServiceImpl implements MailService {
 		System.out.println(mailList);
 	}
 	
+	@Override
+	public Map<String, Object> getReceiveMailInfo(HttpServletRequest request, Model model) {
+		Optional<String> opt = Optional.ofNullable(request.getParameter("mailNo"));
+		int mailNo = Integer.parseInt(opt.orElse("0"));
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("mailNo", mailNo);
+		
+		MailDTO mail = mailMapper.selectMailByMap(map);
+		mail.setEmpName(addrMapper.selectEmpAddrByNo(mail.getEmpNo()).getName());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 (E) a hh:mm", Locale.KOREAN);
+		mail.setReceiveDate(dateFormat.format(mail.getSendDate()));
+		
+		List<ReceiversDTO> receiverList = mailMapper.selectReceiverList(mailNo);
+		
+		List<EmpAddrDTO> addrList = new ArrayList<>();
+		for (ReceiversDTO receiver : receiverList) {
+			
+			EmpAddrDTO addr = addrMapper.selectEmpAddrByNo(receiver.getEmpNo());
+			addr.setReceiveType(receiver.getReceiveType());
+			
+			addrList.add(addr);
+		}
+		
+		model.addAttribute("mail", mail);
+		model.addAttribute("addrList", addrList);
+		
+		Map<String, Object> mailInfo = new HashMap<>();
+		mailInfo.put("mail", mail);
+		mailInfo.put("addrList", addrList);
+		
+		return mailInfo;
+		
+	}
 	
 }
