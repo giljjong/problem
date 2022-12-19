@@ -11,9 +11,18 @@
 <script src="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.js"></script>
 <script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
 <link rel="stylesheet" href="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.css">
+<style type="text/css">
+	.blind {
+		display: none;
+	}
+</style>
 <script>
 
 		$(document).ready(function(){
+			
+			if('${mailNo}' != null && '${mailNo}' != 0) {
+				$('#mailNo').val('${mailNo}');
+			};
 		
 		$('#mailContent').summernote({
 			width: 800,
@@ -57,6 +66,7 @@
 	})
 	
 	function fn_getMailInfo(){
+			
 		if($('#mailNo').val() != "") {
 			$.ajax({
 				type : 'post',
@@ -64,10 +74,46 @@
 				data : 'mailNo=' + $('#mailNo').val(),
 				dataType : 'json',
 				success : function(resData) {
+					
+					var to = resData.mail.sender + ';';
+					var cc = '';
+					var userMail = '${mailUser.email}';
+					
+					var content = '-----Original Message-----<br>From:"' + resData.mail.empName + '"&lt;' + resData.mail.sender + '&gt;<br>To: "' + '${mailUser.name}' + '"&lt;' + '${mailUser.email}' + '&gt;;';
+					
 					$.each(resData.addrList, function(i, addr){
-						console.log(addr);
 						
-					})
+						if(addr.receiveType == 'To'){
+							if(addr.email != userMail){
+								to += addr.email;
+								to += '; ';
+								content += '"' + addr.name + '"&lt;' + addr.email + '&gt;;';
+							}
+						}
+						
+					});
+					
+					content += '<br>Cc: ';
+					
+					$.each(resData.addrList, function(i, addr){
+						if(addr.receiveType == 'cc') {
+							cc += addr.email;
+							cc += '; ';
+							content += '"' + addr.name + '"&lt;' + addr.email + '&gt;;';
+						};
+					});
+					
+					content += '<br>Sent: ' + resData.mail.receiveDate + '<br>Subject: ' + resData.mail.subject + '<br>' + resData.mail.mailContent;
+					
+					if($('#type').val() == 'RE'){
+						$('#strTo').val(to);
+						$('#subject').val('RE: ' + resData.mail.subject);
+					} else if($('#type').val() == 'FW') {
+						$('#strTo').val('');
+						$('#subject').val('FW: ' + resData.mail.subject);
+					}
+					$('#strCc').val(cc);
+					$('#textArea').html(content);
 				}
 			});
 		}
@@ -89,8 +135,11 @@
 		<hr>
 		
 		<form action="${contextPath}/mail/send" id="frm_send" method="post">
-			<input type="text" name="from" value="${mailUser.email}" readonly><br>
-			<input type="hidden" id="mailNo" name="mailNo" value="${mailNo}" readonly><br>
+			<div class="blind">
+				<input type="text" name="from" value="${mailUser.email}" readonly><br>
+				<input type="text" id="mailNo" name="mailNo" value="0" readonly><br>
+				<input type="hidden" id="type" name="type" value="${type}" readonly><br>
+			</div>
 			
 			<label for="strTo">받는사람</label>
 			<input type="text" name="strTo" id="strTo" value="${email}"><br>
@@ -102,7 +151,7 @@
 			<input type="text" name="subject" id="subject"><br>
 			<div>
 				<label for="mailContent">내용</label>
-				<textarea id="mailContent" name="mailContent"></textarea>
+				<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
 			</div>
 		</form>
 		

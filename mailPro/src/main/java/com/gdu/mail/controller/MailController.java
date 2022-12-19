@@ -73,7 +73,7 @@ public class MailController {
 	@PostMapping("/mail/write/new")
 	public String writeClickEmail(@RequestParam("email") String email, RedirectAttributes rAttr) {
 		rAttr.addFlashAttribute("email", email);
-		return "redirect:/mail/get/write";
+		return "redirect:/mail/write";
 	}
 	
 	@GetMapping("/mail/get/write")
@@ -84,13 +84,21 @@ public class MailController {
 	@PostMapping("/mail/write/reply")
 	public String writeReplyMail(@RequestParam("mailNo") int mailNo, RedirectAttributes rAttr) {
 		rAttr.addFlashAttribute("mailNo", mailNo);
-		return "redirect:/mail/get/write";
+		rAttr.addFlashAttribute("type", "RE");
+		return "redirect:/mail/write";
 	}
 	
 	@ResponseBody
 	@PostMapping(value="/mail/get/reply", produces="application/json; charset=UTF-8")
 	public Map<String, Object> getWriteInfo(HttpServletRequest request, Model model){
 		return mailService.getReceiveMailInfo(request, model);
+	}
+	
+	@PostMapping("/mail/write/delivery")
+	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, RedirectAttributes rAttr) {
+		rAttr.addFlashAttribute("mailNo", mailNo);
+		rAttr.addFlashAttribute("type", "FW");
+		return "redirect:/mail/write";
 	}
 	
 }

@@ -31,12 +31,12 @@
 	  	f.submit();
 	};
 	
-	function fn_goReply(mailNo) {
+	function fn_goReply(mailNo, action) {
 		
 	  	var f = document.write_frm;
 	
 		f.setAttribute('method', 'post');
-	  	f.setAttribute('action', '${contextPath}/mail/write/reply');
+	  	f.setAttribute('action', action);
 	  	
 	  	f.mailNo.value = mailNo;
 	
@@ -50,8 +50,8 @@
 			<div><h3>보낸메일함</h3></div>
 			<div class="mail_toolbar">
 				<div class="mail_cnt_tool">
-					<a href="javascript:fn_goReply('${mail.mailNo}')">답장</a>
-					<a href="#">전달</a>
+					<a href="javascript:fn_goReply('${mail.mailNo}', '${contextPath}/mail/write/reply')">답장</a>
+					<a href="javascript:fn_goReply('${mail.mailNo}', '${contextPath}/mail/write/delivery')">전달</a>
 					<a href="#">삭제</a>
 					<a href="#">안읽음</a>
 				</div>

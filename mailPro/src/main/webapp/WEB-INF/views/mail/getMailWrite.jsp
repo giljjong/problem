@@ -64,26 +64,39 @@
 				success : function(resData) {
 					$('#subject').val('Re: ' + resData.mail.subject);
 					
-					var to = '';
+					var to = resData.mail.sender + ';';
 					var cc = '';
+					var userMail = '${mailUser.email}';
 					
-					var content = '-----Original Message-----<br>From:"' + resData.mail.empName + '"&lt;' + resData.mail.sender + '&gt;<br>To: "' + '${mailUser.name}' + '"&lt;' + '${mailUser.email};' + '&gt;';
+					var content = '-----Original Message-----<br>From:"' + resData.mail.empName + '"&lt;' + resData.mail.sender + '&gt;<br>To: "' + '${mailUser.name}' + '"&lt;' + '${mailUser.email}' + '&gt;;';
 					
 					$.each(resData.addrList, function(i, addr){
 						
 						if(addr.receiveType == 'To'){
-							to += addr.email;
-							to += '; ';
-						} else if(addr.receiveType == 'cc') {
-							cc += addr.email;
-							cc += '; ';
+							if(addr.email != userMail){
+								to += addr.email;
+								to += '; ';
+								content += '"' + addr.name + '"&lt;' + addr.email + '&gt;;';
+							}
 						}
 						
 					});
 					
+					content += '<br>Cc: ';
+					
+					$.each(resData.addrList, function(i, addr){
+						if(addr.receiveType == 'cc') {
+							cc += addr.email;
+							cc += '; ';
+							content += '"' + addr.name + '"&lt;' + addr.email + '&gt;;';
+						};
+					});
+					
+					content += '<br>Sent: ' + resData.mail.receiveDate + '<br>Subject: ' + resData.mail.subject + '<br>' + resData.mail.mailContent;
+					
 					$('#strTo').val(to);
 					$('#strCc').val(cc);
-					$('#mailContent').html(content);
+					$('#textArea').html(content);
 				}
 			});
 		}
@@ -107,6 +120,7 @@
 		<form action="${contextPath}/mail/send" id="frm_send" method="post">
 				<input type="hidden" name="from" value="${mailUser.email}" readonly><br>
 				<input type="hidden" id="mailNo" name="mailNo" value="${mailNo}" readonly><br>
+				<input type="hidden" id="type" name="type" value="${type}" readonly><br>
 				<label for="strTo">받는사람</label>
 				<input type="text" name="strTo" id="strTo"><br>
 				
@@ -117,59 +131,8 @@
 				<input type="text" name="subject" id="subject"><br>
 				<div>
 					<label for="mailContent">내용</label>
-					<textarea id="mailContent" name="mailContent"></textarea>
+					<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
 				</div>
-			
-			<c:if test="${mailInfo ne null}">
-				<label for="strTo">받는사람</label>
-				<input type="text" name="strTo" id="strTo"><br>
-				<span id="hidden_to">
-					<c:forEach items="${addrs}" var="addr" >
-						<c:if test="${addr.receiveType eq 'To'}">
-							${addr.email};&nbsp;
-						</c:if>
-					</c:forEach>
-				</span>
-				
-				<label for="strCc">참조</label>
-				<input type="text" name="strCc" id="strCc"><br>
-				<script>
-					var addr = '${addrs}';
-					for(let i = 0; i < '${addrs.size()}'; i++){
-						console.log(addr);
-					}
-				</script>
-				<span id="hidden_cc">
-					<c:forEach items="${addrs}" var="addr" >
-						<c:if test="${addr.receiveType eq 'cc'}">
-							${addr.email};&nbsp;
-						</c:if>
-					</c:forEach>
-				</span>
-				
-				<label for="subject">제목</label>
-				<input type="text" name="subject" id="subject" value="${mailInfo.subject}"><br>
-				<div>
-					<label for="mailContent">내용</label>
-					<textarea id="mailContent" name="mailContent">
-					
-					-----Original Message-----<br>
-					From:"${mail.empName}"&lt;${mail.sender}&gt;<br>
-					To: "${mailUser.name}"&lt;${mailUser.email};&gt;
-						<c:if test="${addr.receiveType eq 'To'}">
-							"${addr.name}"&lt;${addr.email};&gt;
-						</c:if><br>
-					Cc: <c:if test="${addr.receiveType eq 'cc'}">
-							"${addr.name}"&lt;${addr.email};&gt;
-						</c:if><br>
-					Sent: ${mail.receiveDate}<br>
-					Subject:${mail.subject}<br>
-					${mail.mailContent}
-					</textarea>
-				</div>
-
-			</c:if>
-			
 		</form>
 		
 	</div>
