@@ -1,6 +1,10 @@
 IMPORT_FILES_AND_FOLDERS_RELATIVE=true
 IMPORT_FILES_AND_FOLDERS_TYPE=23,1\:7,1
 eclipse.preferences.version=1
+<<<<<<< Updated upstream
 platformState=1666748115427
+=======
+platformState=1671257661512
+>>>>>>> Stashed changes
 quickStart=false
 tipsAndTricks=true

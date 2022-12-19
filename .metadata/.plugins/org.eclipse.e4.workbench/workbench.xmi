@@ -268,8 +268,9 @@
           <tags>persp.actionSet:org.springsource.ide.eclipse.commons.launch.actionSet</tags>
           <tags>persp.actionSet:com.springsource.sts.ide.ui.actionSet.workbench</tags>
           <tags>persp.actionSet:ajelementCreation</tags>
-          <children xsi:type="basic:PartSashContainer" xmi:id="_ZfamQWsSEe2gvskn_5Hwjg" selectedElement="_ZfamR2sSEe2gvskn_5Hwjg" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_ZfamQWsSEe2gvskn_5Hwjg" selectedElement="_ZfamQmsSEe2gvskn_5Hwjg" horizontal="true">
             <children xsi:type="basic:PartStack" xmi:id="_ZfamQmsSEe2gvskn_5Hwjg" elementId="topLeft" containerData="1969" selectedElement="_ZfamQ2sSEe2gvskn_5Hwjg">
+              <tags>active</tags>
               <children xsi:type="advanced:Placeholder" xmi:id="_ZfamQ2sSEe2gvskn_5Hwjg" elementId="org.eclipse.ui.navigator.ProjectExplorer" ref="_e_d10msPEe2dr5PuhFqKzw" closeable="true">
                 <tags>View</tags>
                 <tags>categoryTag:General</tags>
@@ -402,14 +403,17 @@
       <children xsi:type="basic:PartStack" xmi:id="_e_UE0WsPEe2dr5PuhFqKzw" elementId="org.eclipse.e4.primaryDataStack" selectedElement="_ppMLUH9MEe2mMved87BaBA">
         <tags>org.eclipse.e4.primaryDataStack</tags>
         <tags>EditorStack</tags>
+<<<<<<< Updated upstream
         <tags>active</tags>
         <children xsi:type="basic:Part" xmi:id="_ppMLUH9MEe2mMved87BaBA" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="getMailWrite.jsp" iconURI="platform:/plugin/org.eclipse.jst.jsp.ui/icons/full/obj16/sourceEditor.gif" closeable="true">
           <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jst.jsp.core.jspsource.source&quot; name=&quot;getMailWrite.jsp&quot; partName=&quot;getMailWrite.jsp&quot; title=&quot;getMailWrite.jsp&quot; tooltip=&quot;mailPro/src/main/webapp/WEB-INF/views/mail/getMailWrite.jsp&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/mailPro/src/main/webapp/WEB-INF/views/mail/getMailWrite.jsp&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;1891&quot; selectionTopPixel=&quot;1128&quot;/>&#xD;&#xA;&lt;/editor>"/>
+=======
+        <children xsi:type="basic:Part" xmi:id="_IVlQMH3ZEe2_dM8b7C2ACQ" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="listReceive.jsp" iconURI="platform:/plugin/org.eclipse.jst.jsp.ui/icons/full/obj16/sourceEditor.gif" closeable="true">
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jst.jsp.core.jspsource.source&quot; name=&quot;listReceive.jsp&quot; partName=&quot;listReceive.jsp&quot; title=&quot;listReceive.jsp&quot; tooltip=&quot;mailPro/src/main/webapp/WEB-INF/views/mail/listReceive.jsp&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/mailPro/src/main/webapp/WEB-INF/views/mail/listReceive.jsp&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;1964&quot; selectionTopPixel=&quot;1224&quot;/>&#xD;&#xA;&lt;/editor>"/>
+>>>>>>> Stashed changes
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jst.jsp.core.jspsource.source</tags>
-          <tags>active</tags>
-          <tags>activeOnClose</tags>
         </children>
         <children xsi:type="basic:Part" xmi:id="_dzUHwHxSEe2g1qVrNYacBA" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="MailController.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.png" closeable="true">
           <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;MailController.java&quot; partName=&quot;MailController.java&quot; title=&quot;MailController.java&quot; tooltip=&quot;mailPro/src/main/java/com/gdu/mail/controller/MailController.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/mailPro/src/main/java/com/gdu/mail/controller/MailController.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;2880&quot; selectionTopPixel=&quot;1647&quot;/>&#xD;&#xA;&lt;/editor>"/>
@@ -485,6 +489,8 @@
       <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;view CommonNavigator.LINKING_ENABLED=&quot;0&quot; currentWorkingSetName=&quot;Aggregate for window 1669195381766&quot; org.eclipse.ui.navigator.resources.workingSets.showTopLevelWorkingSets=&quot;0&quot;>&#xD;&#xA;&lt;lastRecentlyUsedFilters/>&#xD;&#xA;&lt;/view>"/>
       <tags>View</tags>
       <tags>categoryTag:General</tags>
+      <tags>active</tags>
+      <tags>activeOnClose</tags>
       <menus xmi:id="_ZgF7sGsSEe2gvskn_5Hwjg" elementId="org.eclipse.ui.navigator.ProjectExplorer">
         <tags>ViewMenu</tags>
         <tags>menuContribution:menu</tags>
@@ -697,7 +703,11 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_e73IMGsPEe2dr5PuhFqKzw" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
+<<<<<<< Updated upstream
         <children xsi:type="menu:HandledToolItem" xmi:id="_jSrO0H9EEe2mMved87BaBA" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_eoDbpWsPEe2dr5PuhFqKzw"/>
+=======
+        <children xsi:type="menu:HandledToolItem" xmi:id="_aWWmsH-JEe2c6LgcOG5Yag" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_eoDbpWsPEe2dr5PuhFqKzw"/>
+>>>>>>> Stashed changes
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_e73vQGsPEe2dr5PuhFqKzw" elementId="group.edit" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -737,7 +747,11 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_e73vR2sPEe2dr5PuhFqKzw" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
+<<<<<<< Updated upstream
         <children xsi:type="menu:HandledToolItem" xmi:id="_jStrEX9EEe2mMved87BaBA" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_eoC0p2sPEe2dr5PuhFqKzw"/>
+=======
+        <children xsi:type="menu:HandledToolItem" xmi:id="_aWYb4H-JEe2c6LgcOG5Yag" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="_eoC0p2sPEe2dr5PuhFqKzw"/>
+>>>>>>> Stashed changes
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_e73vSGsPEe2dr5PuhFqKzw" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -3699,7 +3713,11 @@
   </addons>
   <addons xmi:id="_enbwZ2sPEe2dr5PuhFqKzw" elementId="org.eclipse.ui.workbench.addon.0" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
   <addons xmi:id="_enlhUGsPEe2dr5PuhFqKzw" elementId="SplitterAddon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.splitteraddon.SplitterAddon"/>
+<<<<<<< Updated upstream
   <addons xmi:id="_i_gbN39EEe2mMved87BaBA" elementId="org.eclipse.ui.ide.addon.0" contributionURI="bundleclass://org.eclipse.ui.ide/org.eclipse.ui.internal.ide.addons.SaveAllDirtyPartsAddon"/>
+=======
+  <addons xmi:id="_aItzUH-JEe2c6LgcOG5Yag" elementId="org.eclipse.ui.ide.addon.0" contributionURI="bundleclass://org.eclipse.ui.ide/org.eclipse.ui.internal.ide.addons.SaveAllDirtyPartsAddon"/>
+>>>>>>> Stashed changes
   <addons xmi:id="_dz0JgGOlEeSMMaPQU2nlzw" elementId="org.eclipse.ui.ide.application.addon.0" contributorURI="platform:/plugin/org.eclipse.ui.ide.application" contributionURI="bundleclass://org.eclipse.ui.ide.application/org.eclipse.ui.internal.ide.application.addons.ModelCleanupAddon"/>
   <categories xmi:id="_en7fkGsPEe2dr5PuhFqKzw" elementId="org.eclipse.ui.category.edit" name="Edit"/>
   <categories xmi:id="_en7fkWsPEe2dr5PuhFqKzw" elementId="org.eclipse.mylyn.wikitext.ui.editor.category" name="WikiText Markup Editing Commands" description="commands for editing lightweight markup"/>

@@ -2,7 +2,10 @@ INDEX VERSION 1.4+C:\problem\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexe
 1784006871.index
 1788139409.index
 1442250571.index
+<<<<<<< Updated upstream
 1909459658.index
+=======
+>>>>>>> Stashed changes
 2422623586.index
 118021296.index
 275664207.index
