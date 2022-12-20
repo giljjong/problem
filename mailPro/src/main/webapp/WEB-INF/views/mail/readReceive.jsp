@@ -16,8 +16,11 @@
 	.mail_list_tool {
 		margin-left: auto;
 	}
+	.blind {
+		display : none;
+	}
 </style>
-<script >
+<script>
 	
 	function fn_goWrite(email) {
 		
@@ -31,14 +34,12 @@
 	  	f.submit();
 	};
 	
-	function fn_goReply(mailNo, action) {
+	function fn_goReply(action) {
 		
 	  	var f = document.write_frm;
 	
 		f.setAttribute('method', 'post');
 	  	f.setAttribute('action', action);
-	  	
-	  	f.mailNo.value = mailNo;
 	
 	  	f.submit();
 	};
@@ -48,10 +49,13 @@
 	<div>
 		<div>
 			<div><h3>보낸메일함</h3></div>
+			<div class="cnt_info">
+					<span class="info_text">전체메일</span> <span class="cnt_mail">${nReadCnt} / ${totalRecord}</span>
+			</div>
 			<div class="mail_toolbar">
 				<div class="mail_cnt_tool">
-					<a href="javascript:fn_goReply('${mail.mailNo}', '${contextPath}/mail/write/reply')">답장</a>
-					<a href="javascript:fn_goReply('${mail.mailNo}', '${contextPath}/mail/write/delivery')">전달</a>
+					<a href="javascript:fn_goReply('${contextPath}/mail/write/reply')">답장</a>
+					<a href="javascript:fn_goReply('${contextPath}/mail/write/delivery')">전달</a>
 					<a href="#">삭제</a>
 					<a href="#">안읽음</a>
 				</div>
@@ -82,9 +86,11 @@
 							</c:if>
 						</c:forEach>
 					</div>
-					<form name="write_frm">
+					<form name="write_frm" class="blind">
 						<input type="hidden" name="email">
-						<input type="hidden" name="mailNo">
+						<input type="hidden" name="mailNo" value="${mail.mailNo}">
+						<input type="hidden" name="deleteCheck" value="${receivData.deleteCheck}">
+						<input type="hidden" name="receiveType" value="${receivData.receiveType}">
 					</form>
 					<span>${mail.receiveDate}</span>
 					<hr>

@@ -36,7 +36,7 @@
 	function fn_getMailList(){
 		$.ajax({
 			type : 'get',
-			url : '${contextPath}/list/mail',
+			url : '${contextPath}/get/trash',
 			dataType : 'json',
 			success : function(resData){
 				$('.cnt_mail').empty();
@@ -48,6 +48,7 @@
 				var tr = $('<tr>');
 				tr
 				.append($('<td>').html('<input type="checkbox" class="check_one lbl_one" name="mailNo" value="'+ mail.mailNo + '">'))
+				.append($('<td class="blind">').html(mail.sender == '${mailUser.email}' ? 'send' : ''))
 				.append($('<td>').html('<i class="fa-regular fa-star"></i>'))
 				.append($('<td>').html('<input type="hidden" id="readCheck" class="blind" value="' + mail.readCheck +'">'))
 				.append($('<td>').html($('<span class="readChg">').html(mail.readCheck == 'N' ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-regular fa-envelope-open"></i>')))
@@ -80,9 +81,7 @@
 	} // fn
 	
 	function fn_deleteMail(){
-		
 		var mailNo = new Array();
-		
 		$(document).on('click', '.check_one', function(event){
 			if($(this).is(":checked")) {
 				mailNo.push($(this).val());
@@ -96,8 +95,7 @@
 		}) // onClick
 		
 		var objParams = {
-                "mailNo"      : mailNo,
-                "receiveType" : "ToCc"
+                "mailNo"      : mailNo
         };
 		
 		$('.delete').click(function() {
@@ -113,52 +111,28 @@
 					}
 				}
 			}); // ajax
-		}) // onClick
+		})	// onClick
 	} // fn
 	
 	function fn_readEvent(){
 		$(document).on('click', '.detail_text', function(event){
 			var mailNo = $(this).parent().parent().children().first().children().first().val()
-			fn_readMail(mailNo);
+			var receiveType = $(this).parent().parent().children().first().next().children().first().val()
+			fn_readMail(mailNo, receiveType);
 		});	// onClick
 	}	// fn
 	
-	function fn_readMail(mailNo){
+	function fn_readMail(mailNo, receiveType){
 		var f = document.write_frm;
 		
 		f.setAttribute('method', 'post');
 	  	f.setAttribute('action', '${contextPath}/mail/receive/detail');
 	  	
 	  	f.mailNo.value = mailNo;
+	  	f.receiveType.value = receiveType;
 	
 	  	f.submit();
 	}
-	
-	function fn_checkAll(){
-		$(document).on('click', '#check_all', function(event){
-			$('.check_one').prop('checked', $(this).prop('checked'));
-			$('.lbl_all, .lbl_one').toggleClass('lbl_checked');
-		});
-	};
-	
-	function fn_checkOne(){
-		$(document).on('click', '.check_one', function(event){
-			$(this).toggleClass('lbl_checked');
-			let checkCount = 0;
-			
-			for(let i = 0; i < $('.check_one').length; i++) {
-				checkCount += $($('.check_one')[i]).prop('checked');
-			};
-			
-			$('#check_all').prop('checked', $('.check_one').length == checkCount);
-			
-			if($('#check_all').prop('checked')){
-				$('.lbl_all').addClass('lbl_checked');
-			} else {
-				$('.lbl_all').removeClass('lbl_checked');
-			}
-		});
-	};
 	
 	function fn_checkAll(){
 		$(document).on('click', '#check_all', function(event){
@@ -209,7 +183,7 @@
 					<div class="btn_group">
 						<div><input type="checkbox" id="check_all" class="lbl_all"></div>
 						<div><button class="btn_toggle">읽음</button></div>
-						<div><button class="btn_toggle"><span class="text delete">삭제</span></button></div>
+						<div><button class="btn_toggle"><span class="text">삭제</span></button></div>
 					</div>
 					<div class="btn_group">
 						<div><span class="snb_bar"></span></div>
@@ -232,8 +206,9 @@
 				<div class="blind">
 					<form name="write_frm">
 						<input type="hidden" name="mailNo">
-						<input type="hidden" name="deleteCheck" id="deleteCheck" value="N">
-						<input type="hidden" name="receiveType" id="receiveType" value="To">
+						<input type="hidden" name="deleteCheck" id="deleteCheck" value="Y">
+						<input type="hidden" name="receiveType" id="receiveType">
+						<input type="hidden" name="in" id="in" value="trash">
 					</form>
 				</div>
 				<div>

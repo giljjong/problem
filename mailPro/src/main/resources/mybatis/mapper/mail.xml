@@ -51,12 +51,15 @@
 			(#{empNo}, MAIL_SEQ.CURRVAL, 'N', 'N', #{receiveType})
 	</insert>
 	
-	<select id="selectReceiveMailCount" parameterType="int" resultType="int">
+	<select id="selectReceiveMailCount" parameterType="map" resultType="int">
 		SELECT COUNT(*)
  		  FROM MAIL M INNER JOIN RECEIVERS R
     		ON M.MAIL_NO = R.MAIL_NO
- 		 WHERE R.DELETE_CHECK = 'N'
+ 		 WHERE R.DELETE_CHECK = #{deleteCheck}
    		   AND R.EMP_NO = #{empNo}
+   		   AND R.RECEIVE_TYPE = 'To'
+            OR R.RECEIVE_TYPE = 'cc'
+           <if test="trash=='true'">OR R.RECEIVE_TYPE = 'send'</if>
 	</select>
 	
 	<select id="selectReceiveMailList" parameterType="map" resultMap="MailMap">
@@ -65,24 +68,86 @@
           		  FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
                   		  FROM MAIL M INNER JOIN RECEIVERS R
                     		ON M.MAIL_NO = R.MAIL_NO
-                 		 WHERE R.DELETE_CHECK = 'N'
-                   		   AND R.EMP_NO = #{empNo}) A ) B
+                 		 WHERE R.DELETE_CHECK = #{deleteCheck}
+                   		   AND R.EMP_NO = #{empNo}
+                   		   AND R.RECEIVE_TYPE = 'To'
+                   		    OR R.RECEIVE_TYPE = 'cc'
+                   		    <if test="trash=='true'">OR R.RECEIVE_TYPE = 'send'</if>) A ) B
  		 WHERE B.RN BETWEEN #{begin} AND #{end}
 	</select>
 	
-	<select id="selectReadNotCount" parameterType="int" resultType="int">
+	<select id="selectSendMailCount" parameterType="map" resultType="int">
 		SELECT COUNT(*)
  		  FROM MAIL M INNER JOIN RECEIVERS R
     		ON M.MAIL_NO = R.MAIL_NO
- 		 WHERE R.DELETE_CHECK = 'N'
+ 		 WHERE R.DELETE_CHECK = #{deleteCheck}
+   		   AND R.EMP_NO = #{empNo}
+   		   AND R.RECEIVE_TYPE = 'send'
+	</select>
+	
+	<select id="selectSendMailList" parameterType="map" resultMap="MailMap">
+		SELECT B.MAIL_NO, B.EMP_NO, B.SENDER, B.SUBJECT, B.MAIL_CONTENT, B.SEND_DATE, B.SEND_STATUS, B.TAG_NO, B.READ_CHECK, B.DELETE_CHECK
+  		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.SEND_DATE DESC) AS RN, A.MAIL_NO, A.EMP_NO, A.SENDER, A.SUBJECT, A.MAIL_CONTENT, A.SEND_DATE, A.SEND_STATUS, A.TAG_NO, A.READ_CHECK, A.DELETE_CHECK
+          		  FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
+                  		  FROM MAIL M INNER JOIN RECEIVERS R
+                    		ON M.MAIL_NO = R.MAIL_NO
+                 		 WHERE R.DELETE_CHECK = #{deleteCheck}
+                   		   AND R.EMP_NO = #{empNo}
+                   		   AND R.RECEIVE_TYPE = 'send') A ) B
+ 		 WHERE B.RN BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<select id="selectReadNotReceiveCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+ 		  FROM MAIL M INNER JOIN RECEIVERS R
+    		ON M.MAIL_NO = R.MAIL_NO
+ 		 WHERE R.DELETE_CHECK = #{deleteCheck}
    		   AND R.READ_CHECK = 'N'
    		   AND R.EMP_NO = #{empNo}
+   		   AND R.RECEIVE_TYPE = 'To'
+ 		    OR R.RECEIVE_TYPE = 'cc'
 	</select>
 	
 	<select id="selectReceiverList" parameterType="int" resultType="ReceiversDTO">
 		SELECT EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
   		  FROM RECEIVERS
  		 WHERE MAIL_NO = #{mailNo}
+ 		   AND RECEIVE_TYPE = 'To'
+ 		    OR RECEIVE_TYPE = 'cc'
+	</select>
+	
+	<select id="selectReceiverByMap" parameterType="map" resultType="ReceiversDTO">
+		SELECT EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
+		  FROM RECEIVERS
+ 		 WHERE MAIL_NO = #{mailNo}
+ 		   AND EMP_NO = #{empNo}
+ 		   AND RECEIVE_TYPE = 'To'
+ 		    OR RECEIVE_TYPE = 'cc'
+	</select>
+	
+	<select id="selectSendReceiverByMap" parameterType="map" resultType="ReceiversDTO">
+		SELECT EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
+		  FROM RECEIVERS
+ 		 WHERE MAIL_NO = #{mailNo}
+ 		   AND EMP_NO = #{empNo}
+ 		   AND RECEIVE_TYPE = 'send'
+	</select>
+	
+	<update id="updateCheckByMap" parameterType="map">
+		UPDATE RECEIVERS
+		   SET ${checkType} = #{check}
+		 WHERE MAIL_NO = #{mailNo}
+ 		   AND EMP_NO = #{empNo}
+	</update>
+	
+	<select id="selectReadNotSendCount" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+ 		  FROM MAIL M INNER JOIN RECEIVERS R
+    		ON M.MAIL_NO = R.MAIL_NO
+ 		 WHERE R.DELETE_CHECK = 'N'
+   		   AND R.READ_CHECK = 'N'
+   		   AND R.RECEIVE_TYPE = 'send'
+   		   AND R.EMP_NO = #{empNo}
 	</select>
 
 </mapper>

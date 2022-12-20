@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.MailDTO;
+import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.service.MailService;
 
 @Controller
@@ -31,15 +30,19 @@ public class MailController {
 		return "index";
 	}
 	
-	@GetMapping("/mail/main")
-	public String mailForm(HttpServletRequest request, Model model) {
-		mailService.getReceiveMailList(request, model);
+	@GetMapping("/mail/folder/list")
+	public String listMail() {
 		return "mail/listReceive";
 	}
 	
-	@GetMapping("/write/Form")
-	public String write() {
-		return "mail/writeMail";
+	@GetMapping("/mail/folder/trash")
+	public String trashMail() {
+		return "mail/listTrash";
+	}
+	
+	@GetMapping("/mail/folder/send")
+	public String sendMail() {
+		return "mail/listSend";
 	}
 	
 	@GetMapping("/mail/write")
@@ -58,15 +61,9 @@ public class MailController {
 		return "mail/sendSuccess";
 	}
 	
-	@GetMapping("/mail/listReceive")
-	public String listMail(HttpServletRequest request, Model model) {
-		mailService.getReceiveMailList(request, model);
-		return "mail/listReceive";
-	}
-	
-	@GetMapping("/mail/receive/detail")
-	public String getMailInfo(HttpServletRequest request, Model model) {
-		mailService.getReceiveMailInfo(request, model);
+	@PostMapping("/mail/receive/detail")
+	public String getMailInfo(HttpServletRequest request, Model model, ReceiversDTO receivData) {
+		mailService.getReceiveMailInfo(request, model, receivData);
 		return "mail/readReceive";
 	}
 	
@@ -76,29 +73,61 @@ public class MailController {
 		return "redirect:/mail/write";
 	}
 	
-	@GetMapping("/mail/get/write")
-	public String writeRedirect(Model model) {
-		return "mail/getMailWrite";
-	}
-	
 	@PostMapping("/mail/write/reply")
-	public String writeReplyMail(@RequestParam("mailNo") int mailNo, RedirectAttributes rAttr) {
+	public String writeReplyMail(@RequestParam("mailNo") int mailNo, ReceiversDTO receivData,  RedirectAttributes rAttr) {
 		rAttr.addFlashAttribute("mailNo", mailNo);
+		rAttr.addFlashAttribute("receivData", receivData);
 		rAttr.addFlashAttribute("type", "RE");
 		return "redirect:/mail/write";
 	}
 	
 	@ResponseBody
+	@GetMapping(value="/list/mail", produces="application/json; charset=UTF-8")
+	public Map<String, Object> getMailList(HttpServletRequest request){
+		String deleteCheck = "N";
+		String receiveType = "To";
+		return mailService.getReceiveMailList(request, deleteCheck, receiveType);
+	}
+	
+	@ResponseBody
 	@PostMapping(value="/mail/get/reply", produces="application/json; charset=UTF-8")
-	public Map<String, Object> getWriteInfo(HttpServletRequest request, Model model){
-		return mailService.getReceiveMailInfo(request, model);
+	public Map<String, Object> getWriteInfo(HttpServletRequest request, Model model, ReceiversDTO receivData){
+		return mailService.getReceiveMailInfo(request, model, receivData);
 	}
 	
 	@PostMapping("/mail/write/delivery")
-	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, RedirectAttributes rAttr) {
+	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, @RequestParam("deleteCheck") String deleteCheck, RedirectAttributes rAttr) {
 		rAttr.addFlashAttribute("mailNo", mailNo);
+		rAttr.addFlashAttribute("deleteCheck", deleteCheck);
 		rAttr.addFlashAttribute("type", "FW");
 		return "redirect:/mail/write";
 	}
 	
+	@ResponseBody
+	@PostMapping("/mail/change/readCheck")
+	public Map<String, Object> changeReadCheck(@RequestParam("mailNo") int mailNo, @RequestParam("readCheck") String readCheck, HttpServletRequest request) {
+		return mailService.changeRead(mailNo, readCheck, request);
+	}
+	
+	@ResponseBody
+	@PostMapping("/remove/mail/trash")
+	public Map<String, Object> moveInTrash(@RequestParam(value="mailNo[]") List<String> mailNo, @RequestParam("receiveType") String receiveType, HttpServletRequest request) {
+		return mailService.moveInTrash(mailNo, receiveType, request);
+	}
+	
+	@ResponseBody
+	@GetMapping("/get/trash")
+	public Map<String, Object> getTrashList(HttpServletRequest request) {
+		String deleteCheck = "Y";
+		String receiveType = "trash";
+		return mailService.getReceiveMailList(request, deleteCheck, receiveType);
+	}
+	
+	@ResponseBody
+	@GetMapping("/get/send")
+	public Map<String, Object> getSendList(HttpServletRequest request) {
+		String deleteCheck = "N";
+		String receiveType = "send";
+		return mailService.getReceiveMailList(request, deleteCheck, receiveType);
+	}
 }

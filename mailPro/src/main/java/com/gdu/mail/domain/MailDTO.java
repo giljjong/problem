@@ -30,6 +30,7 @@ public class MailDTO {
 	// 읽음 및 삭제 정보
 	private String readCheck;
 	private String deleteCheck;
+	private String receiveType;
 	
 	// 받는 사람
 	private String strTo;

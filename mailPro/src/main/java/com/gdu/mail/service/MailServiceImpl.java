@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdu.mail.domain.EmpAddrDTO;
@@ -94,14 +95,19 @@ public class MailServiceImpl implements MailService {
                 }
     		}
     		
+    		map.put("empNo", empNo);
+    		map.put("receiveType", "send");
+    		mailMapper.insertReceivers(map);
+    		
     	} catch(Exception e) {
     		e.printStackTrace();
     	}
     	
 	}
 	
+	@ResponseBody
 	@Override
-	public void getReceiveMailList(HttpServletRequest request, Model model) {
+	public Map<String, Object> getReceiveMailList(HttpServletRequest request, String deleteCheck, String receiveType) {
 		Optional<String> opt = Optional.ofNullable(request.getParameter("page"));
 		int page = Integer.parseInt(opt.orElse("1"));
 		
@@ -110,19 +116,31 @@ public class MailServiceImpl implements MailService {
 		
 		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
 		
-		int totalRecord = mailMapper.selectReceiveMailCount(empNo);
-		
-		pageUtil.setPageUtil(page, totalRecord, recordPerPage);
-		
 		Map<String, Object> map = new HashMap<>();
 		map.put("empNo", empNo);
+		map.put("deleteCheck", deleteCheck);
+		
+		if(receiveType.equals("trash")) {
+			map.put("trash", "true");
+		}
+		
+		int totalRecord = mailMapper.selectReceiveMailCount(map);
+		if(receiveType.equals("send")) {
+			totalRecord = mailMapper.selectSendMailCount(map);
+		}
+		
+		pageUtil.setPageUtil(page, totalRecord, recordPerPage);
 		map.put("begin", pageUtil.getBegin());
 		map.put("end", pageUtil.getEnd());
 		
 		List<MailDTO> mailList = mailMapper.selectReceiveMailList(map);
+		int nReadCnt = mailMapper.selectReadNotReceiveCount(map);
+		if(receiveType.equals("send")) {
+			mailList = mailMapper.selectSendMailList(map);
+			nReadCnt = mailMapper.selectReadNotSendCount(empNo);
+		}
 		
 		for (MailDTO mailInfo : mailList) {
-            System.out.println(mailInfo.getEmpNo());
 			EmpAddrDTO addr = addrMapper.selectEmpAddrByNo(mailInfo.getEmpNo());
 			
 			if(addr.getName() != null) {
@@ -147,22 +165,42 @@ public class MailServiceImpl implements MailService {
 			
         }
 		
-		model.addAttribute("paging", pageUtil.getPaging(request.getContextPath() + "/mail/listReceive"));
-		model.addAttribute("mailList", mailList);
-		model.addAttribute("beginNo", totalRecord - (page - 1) * pageUtil.getRecordPerPage());
-		model.addAttribute("totalRecord", totalRecord);
-		model.addAttribute("NReadCnt", mailMapper.selectReadNotCount(empNo));
+		Map<String, Object> result = new HashMap<>();
 		
-		System.out.println(mailList);
+		result.put("paging", pageUtil.getPaging(request.getContextPath() + "/mail/listReceive"));
+		result.put("mailList", mailList);
+		result.put("beginNo", totalRecord - (page - 1) * pageUtil.getRecordPerPage());
+		result.put("totalRecord", totalRecord);
+		result.put("nReadCnt", nReadCnt);
+		
+		return result;
 	}
 	
 	@Override
-	public Map<String, Object> getReceiveMailInfo(HttpServletRequest request, Model model) {
+	public Map<String, Object> getReceiveMailInfo(HttpServletRequest request, Model model, ReceiversDTO receivData) {
+		
 		Optional<String> opt = Optional.ofNullable(request.getParameter("mailNo"));
 		int mailNo = Integer.parseInt(opt.orElse("0"));
+		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
 		
 		Map<String, Object> map = new HashMap<>();
+		map.put("empNo", empNo);
 		map.put("mailNo", mailNo);
+		map.put("deleteCheck", receivData.getDeleteCheck());
+		
+		String readCheck = null;
+		if(receivData.getReceiveType().equals("send")) {
+			readCheck = mailMapper.selectSendReceiverByMap(map).getReadCheck();
+		} else {
+			readCheck = mailMapper.selectReceiverByMap(map).getReadCheck();
+			// 널 에러 잡기
+		}
+		
+		if(readCheck != null && readCheck.equals("N")) {
+			map.put("checkType", "READ_CHECK");
+			map.put("check", "Y");
+			mailMapper.updateCheckByMap(map);
+		}
 		
 		MailDTO mail = mailMapper.selectMailByMap(map);
 		mail.setEmpName(addrMapper.selectEmpAddrByNo(mail.getEmpNo()).getName());
@@ -180,15 +218,101 @@ public class MailServiceImpl implements MailService {
 			addrList.add(addr);
 		}
 		
+		int totalRecord = mailMapper.selectReceiveMailCount(map);
+		
+		String in = request.getParameter("in");
+		if(in.equals("trash")) {
+			map.put("trash", "true");
+		}
+		int nReadCnt = mailMapper.selectReadNotReceiveCount(map);
+		if(receivData.getReceiveType().equals("send")) {
+			nReadCnt = mailMapper.selectReadNotSendCount(empNo);
+		}
+		
 		model.addAttribute("mail", mail);
 		model.addAttribute("addrList", addrList);
+		model.addAttribute("nReadCnt", nReadCnt);
+		model.addAttribute("totalRecord", totalRecord);
+		model.addAttribute("receivData", receivData);
 		
 		Map<String, Object> mailInfo = new HashMap<>();
 		mailInfo.put("mail", mail);
 		mailInfo.put("addrList", addrList);
+		mailInfo.put("nReadCnt", nReadCnt);
+		mailInfo.put("totalRecord", totalRecord);
+		
 		
 		return mailInfo;
 		
 	}
+	
+	@Override
+	public Map<String, Object> changeRead(int mailNo, String readCheck, HttpServletRequest request) {
+		
+		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("empNo", empNo);
+		map.put("mailNo", mailNo);
+		map.put("checkType", "READ_CHECK");
+		
+		if(readCheck.equals("N")) {
+			map.put("check", "Y");
+		} else if(readCheck.equals("Y")) {
+			map.put("check", "N");
+		}
+		
+		int updateResult = mailMapper.updateCheckByMap(map);
+		
+		Map<String, Object> result = new HashMap<>();
+		
+		if(updateResult > 0) {
+			result.put("isResult", true);
+		}
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> moveInTrash(List<String> mailNo, String receiveType, HttpServletRequest request) {
+		
+		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("empNo", empNo);
+		map.put("checkType", "DELETE_CHECK");
+		
+		int updateResult = 0;
+		
+		for(int i = 0; i < mailNo.size(); i++) {
+			
+			map.put("mailNo", mailNo.get(i));
+			String deleteCheck = null;
+			if(receiveType.equals("send")) {
+				deleteCheck = mailMapper.selectSendReceiverByMap(map).getDeleteCheck();
+			} else if(receiveType.equals("ToCc")) {
+				deleteCheck = mailMapper.selectReceiverByMap(map).getDeleteCheck();
+			}
+			
+			if(deleteCheck.equals("N")) {
+				map.put("check", "Y");
+				updateResult += mailMapper.updateCheckByMap(map);
+			}
+			
+			map.clear();
+
+		}
+		
+		Map<String, Object> result = new HashMap<>();
+		
+		if(updateResult == mailNo.size()) {
+			result.put("isDelete", true);
+		} else {
+			result.put("isDelete", false);
+		}
+
+		
+		return result;
+	}
+	
 	
 }

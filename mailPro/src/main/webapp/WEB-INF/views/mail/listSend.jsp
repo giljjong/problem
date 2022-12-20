@@ -36,7 +36,7 @@
 	function fn_getMailList(){
 		$.ajax({
 			type : 'get',
-			url : '${contextPath}/list/mail',
+			url : '${contextPath}/get/send',
 			dataType : 'json',
 			success : function(resData){
 				$('.cnt_mail').empty();
@@ -80,9 +80,7 @@
 	} // fn
 	
 	function fn_deleteMail(){
-		
 		var mailNo = new Array();
-		
 		$(document).on('click', '.check_one', function(event){
 			if($(this).is(":checked")) {
 				mailNo.push($(this).val());
@@ -93,24 +91,19 @@
 					}	//if
 				}	// for
 			} // else if
-		}) // onClick
-		
-		var objParams = {
-                "mailNo"      : mailNo,
-                "receiveType" : "ToCc"
-        };
-		
-		$('.delete').click(function() {
+			
+			var objParams = {
+	                "mailNo"      : mailNo,
+	                "receiveType" : "send"
+	        };
+			
 			$.ajax({
 				type : 'post',
 				url : '${contextPath}/remove/mail/trash',
 				data : objParams,
 				dataType : 'json',
 				success : function(resData){
-					console.log(resData.isDelete);
-					if(resData.isDelete){
-						fn_getMailList();
-					}
+					fn_getMailList()
 				}
 			}); // ajax
 		}) // onClick
@@ -160,31 +153,6 @@
 		});
 	};
 	
-	function fn_checkAll(){
-		$(document).on('click', '#check_all', function(event){
-			$('.check_one').prop('checked', $(this).prop('checked'));
-			$('.lbl_all, .lbl_one').toggleClass('lbl_checked');
-		});
-	};
-	
-	function fn_checkOne(){
-		$(document).on('click', '.check_one', function(event){
-			$(this).toggleClass('lbl_checked');
-			let checkCount = 0;
-			
-			for(let i = 0; i < $('.check_one').length; i++) {
-				checkCount += $($('.check_one')[i]).prop('checked');
-			};
-			
-			$('#check_all').prop('checked', $('.check_one').length == checkCount);
-			
-			if($('#check_all').prop('checked')){
-				$('.lbl_all').addClass('lbl_checked');
-			} else {
-				$('.lbl_all').removeClass('lbl_checked');
-			}
-		});
-	};
 </script>
 </head>
 <body>
@@ -209,7 +177,7 @@
 					<div class="btn_group">
 						<div><input type="checkbox" id="check_all" class="lbl_all"></div>
 						<div><button class="btn_toggle">읽음</button></div>
-						<div><button class="btn_toggle"><span class="text delete">삭제</span></button></div>
+						<div><button class="btn_toggle"><span class="text">삭제</span></button></div>
 					</div>
 					<div class="btn_group">
 						<div><span class="snb_bar"></span></div>
@@ -233,7 +201,7 @@
 					<form name="write_frm">
 						<input type="hidden" name="mailNo">
 						<input type="hidden" name="deleteCheck" id="deleteCheck" value="N">
-						<input type="hidden" name="receiveType" id="receiveType" value="To">
+						<input type="hidden" name="receiveType" id="receiveType" value="send">
 					</form>
 				</div>
 				<div>

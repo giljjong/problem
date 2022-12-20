@@ -18,10 +18,14 @@
 </style>
 <script>
 
-		$(document).ready(function(){
+		$(function(){
 			
 			if('${mailNo}' != null && '${mailNo}' != 0) {
 				$('#mailNo').val('${mailNo}');
+			};
+			
+			if('${deleteCheck}' != null) {
+				$('#deleteCheck').val('${deleteCheck}');
 			};
 		
 		$('#mailContent').summernote({
@@ -71,7 +75,7 @@
 			$.ajax({
 				type : 'post',
 				url : '${contextPath}/mail/get/reply',
-				data : 'mailNo=' + $('#mailNo').val(),
+				data : 'mailNo=' + $('#mailNo').val() + '&deleteCheck=' + $('#deleteCheck').val() + '&receiveType=' + $('#receiveType').val(),
 				dataType : 'json',
 				success : function(resData) {
 					
@@ -79,7 +83,7 @@
 					var cc = '';
 					var userMail = '${mailUser.email}';
 					
-					var content = '-----Original Message-----<br>From:"' + resData.mail.empName + '"&lt;' + resData.mail.sender + '&gt;<br>To: "' + '${mailUser.name}' + '"&lt;' + '${mailUser.email}' + '&gt;;';
+					var content = '<br>-----Original Message-----<br>From:"' + resData.mail.empName + '"&lt;' + resData.mail.sender + '&gt;<br>To: "' + '${mailUser.name}' + '"&lt;' + '${mailUser.email}' + '&gt;;';
 					
 					$.each(resData.addrList, function(i, addr){
 						
@@ -154,7 +158,10 @@
 				<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
 			</div>
 		</form>
-		
+		<div class="blind">
+			<input type="hidden" class="blind" id="deleteCheck" name="deleteCheck" value="${receivData.deleteCheck}">
+			<input type="hidden" class="blind" id="receiveType" name="receiveType" value="${receivData.receiveType}">
+		</div>
 	</div>
 </body>
 </html>

@@ -15,8 +15,14 @@ public interface MailMapper {
 	public MailDTO selectMailByMap(Map<String, Object> map);
 	public int insertMail(MailDTO mail);
 	public int insertReceivers(Map<String, Object> map);
-	public int selectReceiveMailCount(int empNo);
+	public int selectReceiveMailCount(Map<String, Object> map);
 	public List<MailDTO> selectReceiveMailList(Map<String, Object> map);
-	public int selectReadNotCount(int empNo);
+	public int selectSendMailCount(Map<String, Object> map);
+	public List<MailDTO> selectSendMailList(Map<String, Object> map);
+	public int selectReadNotReceiveCount(Map<String, Object> map);
 	public List<ReceiversDTO> selectReceiverList(int mailNo);
+	public ReceiversDTO selectReceiverByMap(Map<String, Object> map);
+	public ReceiversDTO selectSendReceiverByMap(Map<String, Object> map);
+	public int updateCheckByMap(Map<String, Object> map);
+	public int selectReadNotSendCount(int empNo);
 }

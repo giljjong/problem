@@ -129,7 +129,7 @@ public class EmpServiceImpl implements EmpService {
 			}
 
 			try {
-				response.sendRedirect(request.getContextPath() + "/mail/main");
+				response.sendRedirect(request.getContextPath() + "/mail/folder/list");
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
