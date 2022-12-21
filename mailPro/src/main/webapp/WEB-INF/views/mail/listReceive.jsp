@@ -27,7 +27,7 @@
 	$(function(){
 		fn_getMailList();
 		fn_readChange();
-		fn_deleteMail();
+		fn_checkChoice();
 		fn_readEvent();
 		fn_checkAll();
 		fn_checkOne();
@@ -61,14 +61,73 @@
 		});
 	}
 	
-	function fn_readChange(){
-		$(document).on('click', '.readChg', function(event){
-			var mailNo = $(this).parent().prev().prev().prev().children().first().val();
-			var readCheck = $(this).parent().prev().children().first().val();
+	function fn_checkChoice(){
+		
+		var mailNo = new Array();
+		var readCheck = new Array();
+		$(document).on('click', '.check_one', function(event){
+			if($(this).is(":checked")) {
+				mailNo.push($(this).val());
+				readCheck.push($(this).parent().next().next().children().first().val());
+			} else if($(this).is(":checked") == false){
+				for(var i = 0; i < mailNo.length; i++){
+					if($(this).val() == mailNo[i]){
+						mailNo.splice(i, 1);
+						readCheck.splice(i, 1);
+					}	//if
+				}	// for
+			} // else if
+		}) // onClick
+		
+		var objParams = {
+                "mailNo"      : mailNo,
+                "readCheck"	  : readCheck,
+                "receiveType" : "ToCc"
+        };
+		
+		$(document).on('click', '.btn_readChg', function(event){
+			
 			$.ajax({
 				type : 'post',
 				url : '${contextPath}/mail/change/readCheck',
-				data : 'mailNo=' + mailNo + '&readCheck=' + readCheck,
+				data : objParams,
+				dataType : 'json',
+				success : function(resData){
+					if(resData.isResult){
+						fn_getMailList();
+					};
+				}
+			}); // ajax
+		});	// onClick
+		
+		$(document).on('click', '.delete', function(event){
+			$.ajax({
+				type : 'post',
+				url : '${contextPath}/remove/mail/trash',
+				data : objParams,
+				dataType : 'json',
+				success : function(resData){
+					fn_getMailList();
+				}
+			}); // ajax
+		});	// onClick
+	}
+	
+	function fn_readChange(){
+		
+		$(document).on('click', '.readChg', function(event){
+			var mailNo = [$(this).parent().prev().prev().prev().children().first().val()];
+			var readCheck = [$(this).parent().prev().children().first().val()];
+			
+			var objParams = {
+				"mailNo"    : mailNo,
+				"readCheck" : readCheck
+            };
+			
+			$.ajax({
+				type : 'post',
+				url : '${contextPath}/mail/change/readCheck',
+				data : objParams,
 				dataType : 'json',
 				success : function(resData) {
 					if(resData.isResult){
@@ -79,46 +138,9 @@
 		}) // onClick
 	} // fn
 	
-	function fn_deleteMail(){
-		
-		var mailNo = new Array();
-		
-		$(document).on('click', '.check_one', function(event){
-			if($(this).is(":checked")) {
-				mailNo.push($(this).val());
-			} else if($(this).is(":checked") == false){
-				for(var i = 0; i < mailNo.length; i++){
-					if($(this).val() == mailNo[i]){
-						id.splice(i, 1);
-					}	//if
-				}	// for
-			} // else if
-		}) // onClick
-		
-		var objParams = {
-                "mailNo"      : mailNo,
-                "receiveType" : "ToCc"
-        };
-		
-		$('.delete').click(function() {
-			$.ajax({
-				type : 'post',
-				url : '${contextPath}/remove/mail/trash',
-				data : objParams,
-				dataType : 'json',
-				success : function(resData){
-					console.log(resData.isDelete);
-					if(resData.isDelete){
-						fn_getMailList();
-					}
-				}
-			}); // ajax
-		}) // onClick
-	} // fn
-	
 	function fn_readEvent(){
 		$(document).on('click', '.detail_text', function(event){
-			var mailNo = $(this).parent().parent().children().first().children().first().val()
+			var mailNo = $(this).parent().prev().prev().prev().prev().prev().children().first().val();
 			fn_readMail(mailNo);
 		});	// onClick
 	}	// fn
@@ -133,32 +155,6 @@
 	
 	  	f.submit();
 	}
-	
-	function fn_checkAll(){
-		$(document).on('click', '#check_all', function(event){
-			$('.check_one').prop('checked', $(this).prop('checked'));
-			$('.lbl_all, .lbl_one').toggleClass('lbl_checked');
-		});
-	};
-	
-	function fn_checkOne(){
-		$(document).on('click', '.check_one', function(event){
-			$(this).toggleClass('lbl_checked');
-			let checkCount = 0;
-			
-			for(let i = 0; i < $('.check_one').length; i++) {
-				checkCount += $($('.check_one')[i]).prop('checked');
-			};
-			
-			$('#check_all').prop('checked', $('.check_one').length == checkCount);
-			
-			if($('#check_all').prop('checked')){
-				$('.lbl_all').addClass('lbl_checked');
-			} else {
-				$('.lbl_all').removeClass('lbl_checked');
-			}
-		});
-	};
 	
 	function fn_checkAll(){
 		$(document).on('click', '#check_all', function(event){
@@ -208,7 +204,7 @@
 				<div class="mail_toolbar">
 					<div class="btn_group">
 						<div><input type="checkbox" id="check_all" class="lbl_all"></div>
-						<div><button class="btn_toggle">읽음</button></div>
+						<div><button class="btn_toggle btn_readChg">읽음</button></div>
 						<div><button class="btn_toggle"><span class="text delete">삭제</span></button></div>
 					</div>
 					<div class="btn_group">

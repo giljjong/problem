@@ -1,31 +1,45 @@
 package com.gdu.mail.util;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
+import javax.mail.BodyPart;
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.MailDTO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 @Component
 public class MailIUtil {
 	
+	@Autowired
+	private MyFileUtil myFileUtil;
+	
 	static final Logger LOGGER = LoggerFactory.getLogger(MailIUtil.class);
 	
-	public boolean sendMail(EmpAddrDTO fromInfo, MailDTO mail) {
+	public boolean sendMail(EmpAddrDTO fromInfo, MailDTO mail, String[] summernoteImageNames) {
 		
 		// 이메일 전송을 위한 필수 속성을 Properties 객체로 생성
 		Properties properties = new Properties();
@@ -52,7 +66,18 @@ public class MailIUtil {
 				message.setRecipients(Message.RecipientType.CC,  mail2Addr(mail.getCcAddr()));
 			}
 			message.setSubject(mail.getSubject());
-			message.setContent(mail.getMailContent(), "text/html; charset=UTF-8");
+			// message.setContent(mail.getMailContent(), "text/html; charset=UTF-8");
+			message.setContent(new MimeMultipart());
+			
+			Multipart mp = (Multipart) message.getContent();
+			mp.addBodyPart(getContents(mail.getMailContent()));
+			
+			// mp.addBodyPart(getFileAttachment("no", ""));
+			if(summernoteImageNames !=  null) {
+				for(int i = 0; i < summernoteImageNames.length; i++) {
+					mp.addBodyPart(getImage(summernoteImageNames[i], "image" + i));
+				}
+			}
 			
 			Transport.send(message);
 			return true;
@@ -74,6 +99,49 @@ public class MailIUtil {
 
 		return addressTo;
 	}
+	
+	 // 이미지를 로컬로 부터 읽어와서 BodyPart 클래스로 만든다. (바운더리 변환)
+	  private BodyPart getImage(String filename, String contextId) throws MessagingException {
+		String path = myFileUtil.getSummernotePath();
+	    // 파일을 읽어와서 BodyPart 클래스로 받는다.
+	    BodyPart mbp = getFileAttachment(filename, path);
+	    if (contextId != null) {
+	      // ContextId 설정
+	      mbp.setHeader("Content-ID", "<" + contextId + ">");
+	    }
+	    return mbp;
+	  }
+	  
+	  // 파일을 로컬로 부터 읽어와서 BodyPart 클래스로 만든다. (바운더리 변환)
+	  private BodyPart getFileAttachment(String filename, String path) throws MessagingException {
+	    // BodyPart 생성
+	    BodyPart mbp = new MimeBodyPart();
+	    // 파일 읽어서 BodyPart에 설정(바운더리 변환)
+	    File file = new File(path, filename);
+	    DataSource source = new FileDataSource(file);
+	    mbp.setDataHandler(new DataHandler(source));
+	    mbp.setDisposition(Part.ATTACHMENT);
+	    mbp.setFileName(file.getName());
+	    return mbp;
+	  }
+	  
+	  // 메일의 본문 내용 설정
+	  private BodyPart getContents(String html) throws MessagingException {
+	    BodyPart mbp = new MimeBodyPart();
+	    
+	    for(int i = 0; i < 10; i++) {
+			if(!html.contains("/mail")) {
+				break;
+			}
+			i++;
+			html = html.replace(html.substring(html.indexOf("/mail"), html.indexOf("style") - 2), "image" + i);
+			html = html.replaceFirst("style", "styl");
+		}
+	    
+		html = html.replace("styl", "style");
+	    mbp.setContent(html, "text/html; charset=utf-8");
+	    return mbp;
+	  }
 	
 	public String checkDateFormat(Date sendDate) {
 		

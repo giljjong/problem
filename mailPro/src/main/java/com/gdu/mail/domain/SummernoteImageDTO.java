@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
-public class ReceiversDTO {
-	private int empNo;
+public class SummernoteImageDTO {
 	private int mailNo;
-	private String readCheck;
-	private String deleteCheck;
-	private String receiveType;
+	private String path;
+	private String filesystem;
 }

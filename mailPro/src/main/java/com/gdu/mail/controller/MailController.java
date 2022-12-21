@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdu.mail.domain.MailDTO;
@@ -52,7 +53,7 @@ public class MailController {
 	
 	@PostMapping("/mail/send")
 	public String save(HttpServletRequest request, HttpServletResponse response, MailDTO mail) {
-		mailService.insertMail(request, response, mail);
+		mailService.saveMail(request, response, mail);
 		return "redirect:/mail/sendSuccess";
 	}
 	
@@ -96,16 +97,16 @@ public class MailController {
 	}
 	
 	@PostMapping("/mail/write/delivery")
-	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, @RequestParam("deleteCheck") String deleteCheck, RedirectAttributes rAttr) {
+	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, ReceiversDTO receivData, RedirectAttributes rAttr) {
 		rAttr.addFlashAttribute("mailNo", mailNo);
-		rAttr.addFlashAttribute("deleteCheck", deleteCheck);
+		rAttr.addFlashAttribute("receivData", receivData);
 		rAttr.addFlashAttribute("type", "FW");
 		return "redirect:/mail/write";
 	}
 	
 	@ResponseBody
 	@PostMapping("/mail/change/readCheck")
-	public Map<String, Object> changeReadCheck(@RequestParam("mailNo") int mailNo, @RequestParam("readCheck") String readCheck, HttpServletRequest request) {
+	public Map<String, Object> changeReadCheck(@RequestParam(value="mailNo[]") List<String> mailNo, @RequestParam(value="readCheck[]")  List<String> readCheck, HttpServletRequest request) {
 		return mailService.changeRead(mailNo, readCheck, request);
 	}
 	
@@ -130,4 +131,11 @@ public class MailController {
 		String receiveType = "send";
 		return mailService.getReceiveMailList(request, deleteCheck, receiveType);
 	}
+	
+	@ResponseBody
+	@PostMapping("/mail/summernote/uploadImage")
+	public Map<String, Object> uploadImage(MultipartHttpServletRequest multipartRequest) {
+		return mailService.saveSummernoteImage(multipartRequest);
+	}
+	
 }

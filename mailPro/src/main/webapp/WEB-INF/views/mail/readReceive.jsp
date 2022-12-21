@@ -43,6 +43,21 @@
 	
 	  	f.submit();
 	};
+	
+	function fn_notReadChange(){
+		$.ajax({
+			type : 'post',
+			url : '${contextPath}/mail/change/readCheck',
+			data : 'mailNo=' + $('#mailNo').val() + '&receiveType=' + $('#receiveType').val(),
+			dataType : 'json',
+			success : function(resData) {
+				if(resData.isResult){
+					fn_getMailList();
+				};
+			}
+		});	// ajax
+		
+	}
 </script>
 </head>
 <body>
@@ -57,7 +72,7 @@
 					<a href="javascript:fn_goReply('${contextPath}/mail/write/reply')">답장</a>
 					<a href="javascript:fn_goReply('${contextPath}/mail/write/delivery')">전달</a>
 					<a href="#">삭제</a>
-					<a href="#">안읽음</a>
+					<a href="#" onClick="fn_notReadChange();">안읽음</a>
 				</div>
 				<div class="mail_list_tool">
 					<a href="#">목록</a>
@@ -86,11 +101,11 @@
 							</c:if>
 						</c:forEach>
 					</div>
+						<input type="text" name="receiveType" value="${receivData.receiveType}">
 					<form name="write_frm" class="blind">
 						<input type="hidden" name="email">
-						<input type="hidden" name="mailNo" value="${mail.mailNo}">
+						<input type="hidden" name="mailNo" id="mailNo" value="${mail.mailNo}">
 						<input type="hidden" name="deleteCheck" value="${receivData.deleteCheck}">
-						<input type="hidden" name="receiveType" value="${receivData.receiveType}">
 					</form>
 					<span>${mail.receiveDate}</span>
 					<hr>

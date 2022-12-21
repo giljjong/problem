@@ -1,5 +1,6 @@
 package com.gdu.mail.service;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,16 +18,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
+import com.gdu.mail.domain.SummernoteImageDTO;
 import com.gdu.mail.mapper.AddrMapper;
 import com.gdu.mail.mapper.EmpMapper;
 import com.gdu.mail.mapper.MailMapper;
-import com.gdu.mail.util.PageUtil;
 import com.gdu.mail.util.MailIUtil;
+import com.gdu.mail.util.MyFileUtil;
+import com.gdu.mail.util.PageUtil;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -46,9 +50,12 @@ public class MailServiceImpl implements MailService {
 	@Autowired
 	private AddrMapper addrMapper;
 	
+	@Autowired
+	private MyFileUtil myFileUtil;
+	
 	@Transactional
 	@Override
-	public void insertMail(HttpServletRequest request, HttpServletResponse response, MailDTO mail) {
+	public void saveMail(HttpServletRequest request, HttpServletResponse response, MailDTO mail) {
 		EmpAddrDTO mailUser = (EmpAddrDTO)request.getSession().getAttribute("mailUser");
 		int empNo = mailUser.getEmpNo();
 		mail.setEmpNo(empNo);
@@ -59,8 +66,22 @@ public class MailServiceImpl implements MailService {
     	
     	try {
 
-    		mailUtil.sendMail(mailUser, mail);
-    		mailMapper.insertMail(mail);
+    		int result = mailMapper.insertMail(mail);
+    		
+    		String[] summernoteImageNames = request.getParameterValues("summernoteImageNames");
+    		
+    		if(result > 0) {
+				
+				if(summernoteImageNames !=  null) {
+					for(String filesystem : summernoteImageNames) {
+						SummernoteImageDTO summernoteImage = SummernoteImageDTO.builder()
+								.filesystem(filesystem)
+								.build();
+						mailMapper.insertSummernoteImage(summernoteImage);
+					}
+				}
+			}
+    		
     		String[] toAddrs = mail.getToAddr();
     		String[] toCcs = mail.getCcAddr();
     		
@@ -98,6 +119,8 @@ public class MailServiceImpl implements MailService {
     		map.put("empNo", empNo);
     		map.put("receiveType", "send");
     		mailMapper.insertReceivers(map);
+    		
+    		mailUtil.sendMail(mailUser, mail, summernoteImageNames);
     		
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -141,11 +164,18 @@ public class MailServiceImpl implements MailService {
 		}
 		
 		for (MailDTO mailInfo : mailList) {
+			
+			if((receiveType.equals("trash") && mailInfo.getReceiveType().equals("send")) || receiveType.equals("send")){
+				int[] to = mailMapper.selectReceiveEmp(mailInfo.getMailNo());
+				mailInfo.setEmpNo(to[0]);
+			}
+			
 			EmpAddrDTO addr = addrMapper.selectEmpAddrByNo(mailInfo.getEmpNo());
 			
 			if(addr.getName() != null) {
 				mailInfo.setEmpName(addr.getName());
 			}
+			
 			
 			Date sendDate = mailInfo.getSendDate();
 			SimpleDateFormat dateFormat;
@@ -189,6 +219,7 @@ public class MailServiceImpl implements MailService {
 		map.put("deleteCheck", receivData.getDeleteCheck());
 		
 		String readCheck = null;
+		
 		if(receivData.getReceiveType().equals("send")) {
 			readCheck = mailMapper.selectSendReceiverByMap(map).getReadCheck();
 		} else {
@@ -206,6 +237,7 @@ public class MailServiceImpl implements MailService {
 		mail.setEmpName(addrMapper.selectEmpAddrByNo(mail.getEmpNo()).getName());
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 MM월 dd일 (E) a hh:mm", Locale.KOREAN);
 		mail.setReceiveDate(dateFormat.format(mail.getSendDate()));
+		mail.setReadCheck("Y");
 		
 		List<ReceiversDTO> receiverList = mailMapper.selectReceiverList(mailNo);
 		
@@ -221,7 +253,7 @@ public class MailServiceImpl implements MailService {
 		int totalRecord = mailMapper.selectReceiveMailCount(map);
 		
 		String in = request.getParameter("in");
-		if(in.equals("trash")) {
+		if(in != null && in.equals("trash")) {
 			map.put("trash", "true");
 		}
 		int nReadCnt = mailMapper.selectReadNotReceiveCount(map);
@@ -247,28 +279,38 @@ public class MailServiceImpl implements MailService {
 	}
 	
 	@Override
-	public Map<String, Object> changeRead(int mailNo, String readCheck, HttpServletRequest request) {
+	public Map<String, Object> changeRead(List<String> mailNo, List<String> readCheck, HttpServletRequest request) {
 		
 		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
 		
 		Map<String, Object> map = new HashMap<>();
-		map.put("empNo", empNo);
-		map.put("mailNo", mailNo);
-		map.put("checkType", "READ_CHECK");
 		
-		if(readCheck.equals("N")) {
-			map.put("check", "Y");
-		} else if(readCheck.equals("Y")) {
-			map.put("check", "N");
+		int updateResult = 0;
+		
+		for(int i = 0; i < mailNo.size(); i++) {
+			map.put("empNo", empNo);
+			map.put("checkType", "READ_CHECK");
+			
+			map.put("mailNo", mailNo.get(i));
+			
+			if(readCheck.get(i).equals("N")) {
+				map.put("check", "Y");
+			} else if(readCheck.get(i).equals("Y")) {
+				map.put("check", "N");
+			}
+			
+			updateResult += mailMapper.updateCheckByMap(map);
+			map.clear();
 		}
-		
-		int updateResult = mailMapper.updateCheckByMap(map);
 		
 		Map<String, Object> result = new HashMap<>();
 		
-		if(updateResult > 0) {
+		if(updateResult == mailNo.size()) {
 			result.put("isResult", true);
+		} else {
+			result.put("isResult", false);
 		}
+		
 		return result;
 	}
 	
@@ -278,15 +320,17 @@ public class MailServiceImpl implements MailService {
 		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
 		
 		Map<String, Object> map = new HashMap<>();
-		map.put("empNo", empNo);
-		map.put("checkType", "DELETE_CHECK");
 		
 		int updateResult = 0;
 		
 		for(int i = 0; i < mailNo.size(); i++) {
 			
+			map.put("empNo", empNo);
+			map.put("checkType", "DELETE_CHECK");
 			map.put("mailNo", mailNo.get(i));
+			
 			String deleteCheck = null;
+			
 			if(receiveType.equals("send")) {
 				deleteCheck = mailMapper.selectSendReceiverByMap(map).getDeleteCheck();
 			} else if(receiveType.equals("ToCc")) {
@@ -297,6 +341,10 @@ public class MailServiceImpl implements MailService {
 				map.put("check", "Y");
 				updateResult += mailMapper.updateCheckByMap(map);
 			}
+			
+			System.out.println(empNo + "번호");
+			System.out.println(mailNo.get(i) + "메일");
+			System.out.println(deleteCheck + "지우기");
 			
 			map.clear();
 
@@ -314,5 +362,33 @@ public class MailServiceImpl implements MailService {
 		return result;
 	}
 	
+	@Override
+	public Map<String, Object> saveSummernoteImage(MultipartHttpServletRequest multipartRequest) {
+		
+				MultipartFile multipartFile = multipartRequest.getFile("file");
+					
+				String path = myFileUtil.getSummernotePath();
+						
+				String filesystem = myFileUtil.getFilename(multipartFile.getOriginalFilename());
+				
+				File dir = new File(path);
+				if(dir.exists() == false) {
+					dir.mkdirs();
+				}
+				
+				File file = new File(path, filesystem);
+				
+				try {
+					multipartFile.transferTo(file);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("src", multipartRequest.getContextPath() + "/load/image/" + filesystem);  // 이미지 mapping값을 반환
+				map.put("filesystem", filesystem); 
+				return map;
+		
+	}
 	
 }

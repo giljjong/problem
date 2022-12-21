@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
+import com.gdu.mail.domain.SummernoteImageDTO;
 
 @Mapper
 public interface MailMapper {
@@ -25,4 +26,9 @@ public interface MailMapper {
 	public ReceiversDTO selectSendReceiverByMap(Map<String, Object> map);
 	public int updateCheckByMap(Map<String, Object> map);
 	public int selectReadNotSendCount(int empNo);
+	public int[] selectReceiveEmp(int mailNo);
+	public int insertSummernoteImage(SummernoteImageDTO summernote);
+	public SummernoteImageDTO selectSummernoteImageListInMail(int mailNo);
+	public SummernoteImageDTO selectAllSummernoteImageList();
+	public int deleteSummernoteImage(String filesystem);
 }

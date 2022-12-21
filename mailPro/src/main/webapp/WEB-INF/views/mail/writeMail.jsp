@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <script src="${contextPath}/resources/js/jquery-3.6.1.min.js"></script>
+<script src="${contextPath}/resources/js/moment-with-locales.js"></script>
 <script src="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.js"></script>
 <script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
 <link rel="stylesheet" href="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.css">
@@ -19,6 +20,7 @@
 <script>
 
 		$(function(){
+			console.log($('#mailNo').val());
 			
 			if('${mailNo}' != null && '${mailNo}' != 0) {
 				$('#mailNo').val('${mailNo}');
@@ -29,8 +31,8 @@
 			};
 		
 		$('#mailContent').summernote({
-			width: 800,
-			height: 400,
+			width: 1200,
+			height: 700,
 			lang: 'ko-KR',
 			toolbar: [
 			    ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -43,20 +45,23 @@
 			],
 			callbacks: {
 				onImageUpload: function(files){
-					var formData = new FormData();
-					formData.append('file', files[0]);  // 파라미터 file, summernote 편집기에 추가된 이미지가 files[0]임
-					$.ajax({
-						type: 'post',
-						url: getContextPath() + '/blog/uploadImage',
-						data: formData,
-						contentType: false,  // ajax 이미지 첨부용
-						processData: false,  // ajax 이미지 첨부용
-						dataType: 'json',    // HDD에 저장된 이미지의 경로를 json으로 받아옴
-						success: function(resData){
-							
-							$('#mailContent').summernote('insertImage', resData.src);
-						}
-					});  // ajax
+					for(let i = 0; i < files.length; i++) {
+						var formData = new FormData();
+						formData.append('file', files[i]);  // 파라미터 file, summernote 편집기에 추가된 이미지가 files[0]임
+						$.ajax({
+							type: 'post',
+							url: '${contextPath}/mail/summernote/uploadImage',
+							data: formData,
+							contentType: false,  // ajax 이미지 첨부용
+							processData: false,  // ajax 이미지 첨부용
+							dataType: 'json',    // HDD에 저장된 이미지의 경로를 json으로 받아옴
+							success: function(resData){
+								
+								$('#mailContent').summernote('insertImage', resData.src);
+								$('#summernote_image_list').append($('<input type="hidden" name="summernoteImageNames" value="' + resData.filesystem + '">'))
+							}
+						});  // ajax
+					}	// for
 				}  // onImageUpload
 			}  // callbacks
 		});
@@ -71,7 +76,7 @@
 	
 	function fn_getMailInfo(){
 			
-		if($('#mailNo').val() != "") {
+		if($('#mailNo').val() != 0) {
 			$.ajax({
 				type : 'post',
 				url : '${contextPath}/mail/get/reply',
@@ -138,7 +143,7 @@
 		
 		<hr>
 		
-		<form action="${contextPath}/mail/send" id="frm_send" method="post">
+		<form action="${contextPath}/mail/send" id="frm_send" method="post" enctype="multipart/form-data">
 			<div class="blind">
 				<input type="text" name="from" value="${mailUser.email}" readonly><br>
 				<input type="text" id="mailNo" name="mailNo" value="0" readonly><br>
@@ -157,6 +162,7 @@
 				<label for="mailContent">내용</label>
 				<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
 			</div>
+			<div id="summernote_image_list"></div>
 		</form>
 		<div class="blind">
 			<input type="hidden" class="blind" id="deleteCheck" name="deleteCheck" value="${receivData.deleteCheck}">
