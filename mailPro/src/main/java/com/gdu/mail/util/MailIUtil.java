@@ -58,7 +58,7 @@ public class MailIUtil {
 		
 		// 이메일 작성 및 전송
 		try {
-			
+			session.setDebug(true);
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(fromInfo.getEmail(), fromInfo.getName()));
 			message.setRecipients(Message.RecipientType.TO,  mail2Addr(mail.getToAddr()));
@@ -75,7 +75,7 @@ public class MailIUtil {
 			// mp.addBodyPart(getFileAttachment("no", ""));
 			if(summernoteImageNames !=  null) {
 				for(int i = 0; i < summernoteImageNames.length; i++) {
-					mp.addBodyPart(getImage(summernoteImageNames[i], "image" + i));
+					mp.addBodyPart(getImage(summernoteImageNames[i], "<image" + i + ">"));
 				}
 			}
 			
@@ -104,7 +104,7 @@ public class MailIUtil {
 	  private BodyPart getImage(String filename, String contextId) throws MessagingException {
 		String path = myFileUtil.getSummernotePath();
 	    // 파일을 읽어와서 BodyPart 클래스로 받는다.
-	    BodyPart mbp = getFileAttachment(filename, path);
+	    BodyPart mbp = getFileAttachment(path, filename);
 	    if (contextId != null) {
 	      // ContextId 설정
 	      mbp.setHeader("Content-ID", "<" + contextId + ">");
@@ -113,7 +113,7 @@ public class MailIUtil {
 	  }
 	  
 	  // 파일을 로컬로 부터 읽어와서 BodyPart 클래스로 만든다. (바운더리 변환)
-	  private BodyPart getFileAttachment(String filename, String path) throws MessagingException {
+	  private BodyPart getFileAttachment(String path, String filename) throws MessagingException {
 	    // BodyPart 생성
 	    BodyPart mbp = new MimeBodyPart();
 	    // 파일 읽어서 BodyPart에 설정(바운더리 변환)
@@ -133,8 +133,7 @@ public class MailIUtil {
 			if(!html.contains("/mail")) {
 				break;
 			}
-			i++;
-			html = html.replace(html.substring(html.indexOf("/mail"), html.indexOf("style") - 2), "image" + i);
+			html = html.replace(html.substring(html.indexOf("/mail"), html.indexOf("style") - 2), "cid:image" + i);
 			html = html.replaceFirst("style", "styl");
 		}
 	    

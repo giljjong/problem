@@ -71,6 +71,7 @@
 		});
 		
 		fn_getMailInfo();
+		fn_fileCheck();
 		
 	})
 	
@@ -127,6 +128,27 @@
 			});
 		}
 	}
+		
+		function fn_fileCheck(){
+			$('#files').change(function(){
+				
+				let maxSize = 1024 * 1024 * 20;
+				
+				let files = this.files;
+				
+				for(let i = 0; i < files.length; i++){
+					if(files[i].size > maxSize) {
+						alert('20MB 이하의 파일만 첨부할 수 있습니다.');
+						$(this).val('');
+						return;
+					};
+					
+				};
+				
+				
+			});
+		};
+		
 </script>
 </head>
 <body>
@@ -158,6 +180,10 @@
 			
 			<label for="subject">제목</label>
 			<input type="text" name="subject" id="subject"><br>
+			<div>
+				<label for="files">파일 첨부</label>
+				<input type="file" id="files" name="files" multiple="multiple">
+			</div>
 			<div>
 				<label for="mailContent">내용</label>
 				<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
