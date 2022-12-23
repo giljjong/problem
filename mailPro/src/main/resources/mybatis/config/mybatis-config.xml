@@ -18,5 +18,6 @@
 		<typeAlias type="com.gdu.mail.domain.MailDTO" alias="MailDTO" />
 		<typeAlias type="com.gdu.mail.domain.ReceiversDTO" alias="ReceiversDTO" />
 		<typeAlias type="com.gdu.mail.domain.SummernoteImageDTO" alias="SummernoteImageDTO" />
+		<typeAlias type="com.gdu.mail.domain.MailAtchDTO" alias="MailAtchDTO" />
 	</typeAliases>
 </configuration>

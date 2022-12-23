@@ -3,19 +3,23 @@ package com.gdu.mail.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.io.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdu.mail.domain.MailAtchDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.service.MailService;
@@ -51,10 +55,10 @@ public class MailController {
 		return "mail/writeMail";
 	}
 	
+	@ResponseBody
 	@PostMapping("/mail/send")
-	public String save(HttpServletRequest request, HttpServletResponse response, MailDTO mail) {
-		mailService.saveMail(request, response, mail);
-		return "redirect:/mail/sendSuccess";
+	public Map<String, Object> save(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, MailDTO mail) {
+		return mailService.saveMail(multipartRequest, response, mail);
 	}
 	
 	@GetMapping("/mail/sendSuccess")
@@ -98,7 +102,10 @@ public class MailController {
 	
 	@PostMapping("/mail/write/delivery")
 	public String writeDeliveryMail(@RequestParam("mailNo") int mailNo, ReceiversDTO receivData, RedirectAttributes rAttr) {
+		List<MailAtchDTO> attachList = mailService.getMailAttach(mailNo);
 		rAttr.addFlashAttribute("mailNo", mailNo);
+		rAttr.addFlashAttribute("attachList", attachList);
+		rAttr.addFlashAttribute("attachCnt", attachList.size());
 		rAttr.addFlashAttribute("receivData", receivData);
 		rAttr.addFlashAttribute("type", "FW");
 		return "redirect:/mail/write";
@@ -136,6 +143,18 @@ public class MailController {
 	@PostMapping("/mail/summernote/uploadImage")
 	public Map<String, Object> uploadImage(MultipartHttpServletRequest multipartRequest) {
 		return mailService.saveSummernoteImage(multipartRequest);
+	}
+	
+	@ResponseBody
+	@GetMapping("/mail/download")
+	public ResponseEntity<Resource> download(@RequestHeader("User-Agent") String userAgent, @RequestParam("fileNo") int fileNo) {
+		return mailService.download(userAgent, fileNo);
+	}
+	
+	@ResponseBody
+	@GetMapping("/mail/downloadAll")
+	public ResponseEntity<Resource> downloadAll(@RequestHeader("User-Agent") String userAgent, @RequestParam("mailNo") int mailNo) {
+		return mailService.downloadAll(userAgent, mailNo);
 	}
 	
 }

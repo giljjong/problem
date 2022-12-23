@@ -1,6 +1,11 @@
 package com.gdu.mail.service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,11 +14,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.FileSystemResource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -22,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.gdu.mail.domain.EmpAddrDTO;
+import com.gdu.mail.domain.MailAtchDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.domain.SummernoteImageDTO;
@@ -31,6 +44,8 @@ import com.gdu.mail.mapper.MailMapper;
 import com.gdu.mail.util.MailIUtil;
 import com.gdu.mail.util.MyFileUtil;
 import com.gdu.mail.util.PageUtil;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -55,8 +70,8 @@ public class MailServiceImpl implements MailService {
 	
 	@Transactional
 	@Override
-	public void saveMail(HttpServletRequest request, HttpServletResponse response, MailDTO mail) {
-		EmpAddrDTO mailUser = (EmpAddrDTO)request.getSession().getAttribute("mailUser");
+	public Map<String, Object> saveMail(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, MailDTO mail) {
+		EmpAddrDTO mailUser = (EmpAddrDTO)multipartRequest.getSession().getAttribute("mailUser");
 		int empNo = mailUser.getEmpNo();
 		mail.setEmpNo(empNo);
 		
@@ -64,23 +79,100 @@ public class MailServiceImpl implements MailService {
 		
     	if (!mail.getStrCc().equals("")) mail.setCcAddr(mail.getStrCc().split(";"));
     	
-    	try {
+    	Map<String, Object> resData = new HashMap<>();
+    	
 
     		int result = mailMapper.insertMail(mail);
     		
-    		String[] summernoteImageNames = request.getParameterValues("summernoteImageNames");
+    		String[] summernoteImageNames = multipartRequest.getParameterValues("summernoteImageNames");
+    		List<MultipartFile> files = multipartRequest.getFiles("attachs");
     		
-    		if(result > 0) {
-				
-				if(summernoteImageNames !=  null) {
-					for(String filesystem : summernoteImageNames) {
-						SummernoteImageDTO summernoteImage = SummernoteImageDTO.builder()
-								.filesystem(filesystem)
-								.build();
-						mailMapper.insertSummernoteImage(summernoteImage);
-					}
-				}
-			}
+    		int attachResult;
+    		List<MailAtchDTO> atch = new ArrayList<>();
+    		
+    		for(MultipartFile multipartFile : files) {
+    			
+    			try {
+    				
+    				if(result > 0) {
+    					
+    					if(summernoteImageNames !=  null) {
+    						for(String filesystem : summernoteImageNames) {
+    							SummernoteImageDTO summernoteImage = SummernoteImageDTO.builder()
+    									.filesystem(filesystem)
+    									.build();
+    							mailMapper.insertSummernoteImage(summernoteImage);
+    						}
+    					}
+    				
+	    				// 첨부가 있는지 점검
+	    				if(multipartFile != null && multipartFile.isEmpty() == false) {  // 둘 다 필요함
+	    					
+	    					
+    						if(files.get(0).getSize() == 0) {  // 첨부가 없는 경우 (files 리스트에 [MultipartFile[field="files", filename=, contentType=application/octet-stream, size=0]] 이렇게 저장되어 있어서 files.size()가 1이다.
+    							attachResult = files.size();
+    						} else {
+    							attachResult = 0;
+    						}
+	    					
+	    					// 원래 이름
+	    					String originName = multipartFile.getOriginalFilename();
+	    					// IE는 origin에 전체 경로가 붙어서 파일명만 사용해야 함
+	    					originName = originName.substring(originName.lastIndexOf("\\") + 1);
+	    					
+	    					// 저장할 이름
+	    					String changeName = myFileUtil.getFilename(originName);
+	    					
+	    					// 저장할 경로
+	    					String mailPath = myFileUtil.getTodayPath();
+	    					
+	    					// 저장할 경로 만들기
+	    					File dir = new File(mailPath);
+	    					if(dir.exists() == false) {
+	    						dir.mkdirs();
+	    					}
+	    					
+	    					// 첨부할 File 객체
+	    					File file = new File(dir, changeName);
+	    					
+	    					// 첨부파일 서버에 저장(업로드 진행)
+	    					multipartFile.transferTo(file);
+	
+	    					// AttachDTO 생성
+	    					MailAtchDTO attach = MailAtchDTO.builder()
+	    							.originName(originName)
+	    							.changeName(changeName)
+	    							.mailPath(mailPath)
+	    							.build();
+	    					
+	    					String contentType = Files.probeContentType(file.toPath());  // 이미지의 Content-Type(image/jpeg, image/png, image/gif)
+
+	    					// 첨부파일이 이미지이면 썸네일을 만듬
+	    					if(contentType != null && contentType.startsWith("image")) {
+	    					
+	    						// 썸네일을 서버에 저장
+	    						Thumbnails.of(file)
+	    							.size(50, 50)
+	    							.toFile(new File(dir, "s_" + changeName));  // 썸네일의 이름은 s_로 시작함
+	    						
+	    						// 썸네일이 있는 첨부로 상태 변경
+	    						attach.setHasThumbnail(1);
+	    					
+	    					}
+	    					
+	    					// DB에 AttachDTO 저장
+	    					attachResult += mailMapper.insertMailAttach(attach);
+	    					atch.add(attach);
+    					}
+    				}
+    				
+    			} catch(Exception e) {
+    				e.printStackTrace();
+    			}
+    			
+    		}  // for
+    		
+    		try {
     		
     		String[] toAddrs = mail.getToAddr();
     		String[] toCcs = mail.getCcAddr();
@@ -120,10 +212,20 @@ public class MailServiceImpl implements MailService {
     		map.put("receiveType", "send");
     		mailMapper.insertReceivers(map);
     		
-    		mailUtil.sendMail(mailUser, mail, summernoteImageNames);
+    		boolean sendResult = mailUtil.sendMail(mailUser, mail, summernoteImageNames, atch);
+    		
+    		if(sendResult) {
+    			resData.put("status", HttpURLConnection.HTTP_OK);
+    		} else {
+    			resData.put("status", HttpURLConnection.HTTP_INTERNAL_ERROR);
+    		}
+    		
+    		return resData;
     		
     	} catch(Exception e) {
     		e.printStackTrace();
+    		resData.put("status", HttpURLConnection.HTTP_INTERNAL_ERROR);
+    		return resData;
     	}
     	
 	}
@@ -273,6 +375,12 @@ public class MailServiceImpl implements MailService {
 		mailInfo.put("nReadCnt", nReadCnt);
 		mailInfo.put("totalRecord", totalRecord);
 		
+		List<MailAtchDTO> attachList = mailMapper.selectMailAttachList(mailNo);
+		if(attachList != null) {
+			model.addAttribute("attachList", attachList);
+			model.addAttribute("attachCnt", attachList.size());
+			mailInfo.put("attachList", attachList);
+		}
 		
 		return mailInfo;
 		
@@ -365,30 +473,158 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public Map<String, Object> saveSummernoteImage(MultipartHttpServletRequest multipartRequest) {
 		
-				MultipartFile multipartFile = multipartRequest.getFile("file");
-					
-				String path = myFileUtil.getSummernotePath();
-						
-				String filesystem = myFileUtil.getFilename(multipartFile.getOriginalFilename());
+		MultipartFile multipartFile = multipartRequest.getFile("file");
+			
+		String path = myFileUtil.getSummernotePath();
 				
-				File dir = new File(path);
-				if(dir.exists() == false) {
-					dir.mkdirs();
-				}
-				
-				File file = new File(path, filesystem);
-				
-				try {
-					multipartFile.transferTo(file);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("src", multipartRequest.getContextPath() + "/load/image/" + filesystem);  // 이미지 mapping값을 반환
-				map.put("filesystem", filesystem); 
-				return map;
+		String filesystem = myFileUtil.getFilename(multipartFile.getOriginalFilename());
 		
+		File dir = new File(path);
+		if(dir.exists() == false) {
+			dir.mkdirs();
+		}
+		
+		File file = new File(path, filesystem);
+		
+		try {
+			multipartFile.transferTo(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("src", multipartRequest.getContextPath() + "/load/image/" + filesystem);  // 이미지 mapping값을 반환
+		map.put("filesystem", filesystem); 
+		return map;
+		
+	}
+	
+	@Override
+	public ResponseEntity<Resource> download(String userAgent, int fileNo) {
+		
+		// 다운로드 할 첨부 파일의 정보(경로, 이름)
+		MailAtchDTO attach = mailMapper.selectMailAttachByNo(fileNo);
+		File file = new File(attach.getMailPath(), attach.getChangeName());
+		
+		// 반환할 Resource
+		Resource resource = new FileSystemResource(file);
+		
+		// Resource가 없으면 종료 (다운로드할 파일이 없음)
+		if(resource.exists() == false) {
+			return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
+		}
+		
+		// 다운로드 되는 파일명(브라우저 마다 다르게 세팅)
+		String origin = attach.getOriginName();
+		try {
+			
+			// IE (userAgent에 "Trident"가 포함되어 있음)
+			if(userAgent.contains("Trident")) {
+				origin = URLEncoder.encode(origin, "UTF-8").replaceAll("\\+", " ");
+			}
+			// Edge (userAgent에 "Edg"가 포함되어 있음)
+			else if(userAgent.contains("Edg")) {
+				origin = URLEncoder.encode(origin, "UTF-8");
+			}
+			// 나머지
+			else {
+				origin = new String(origin.getBytes("UTF-8"), "ISO-8859-1");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// 다운로드 헤더 만들기
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Disposition", "attachment; filename=" + origin);
+		header.add("Content-Length", file.length() + "");
+		
+		return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+		
+	}
+	
+	@Override
+	public ResponseEntity<Resource> downloadAll(String userAgent, int mailNo) {
+		
+		// /storage/temp 디렉터리에 임시 zip 파일을 만든 뒤 이를 다운로드 받을 수 있음
+		// com.gdu.app14.batch.DeleteTempFiles에 의해서 /storage/temp 디렉터리의 임시 zip 파일은 주기적으로 삭제됨
+		
+		// 다운로드 할 첨부 파일들의 정보(경로, 이름)
+		List<MailAtchDTO> attachList = mailMapper.selectMailAttachList(mailNo);
+		
+		// zip 파일을 만들기 위한 스트림
+		FileOutputStream fout = null;
+		ZipOutputStream zout = null;   // zip 파일 생성 스트림
+		FileInputStream fin = null;
+		
+		// /storage/temp 디렉터리에 zip 파일 생성
+		String tempPath = myFileUtil.getTempPath();
+		
+		File tempDir = new File(tempPath);
+		if(tempDir.exists() == false) {
+			tempDir.mkdirs();
+		}
+		
+		// zip 파일명은 타임스탬프 값으로 생성
+		String tempName =  System.currentTimeMillis() + ".zip";
+		
+		try {
+			
+			fout = new FileOutputStream(new File(tempDir, tempName));
+			zout = new ZipOutputStream(fout);
+			
+			// 첨부가 있는지 확인
+			if(attachList != null && attachList.isEmpty() == false) {
+
+				// 첨부 파일 하나씩 순회
+				for(MailAtchDTO attach : attachList) {
+					
+					// zip 파일에 첨부 파일 추가
+					ZipEntry zipEntry = new ZipEntry(attach.getOriginName());
+					zout.putNextEntry(zipEntry);
+					
+					fin = new FileInputStream(new File(attach.getMailPath(), attach.getChangeName()));
+					byte[] buffer = new byte[1024];
+					int length;
+					while((length = fin.read(buffer)) != -1){
+						zout.write(buffer, 0, length);
+					}
+					zout.closeEntry();
+					fin.close();
+					
+				}
+				
+				zout.close();
+
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		
+		// 반환할 Resource
+		File file = new File(tempDir, tempName);
+		Resource resource = new FileSystemResource(file);
+		
+		// Resource가 없으면 종료 (다운로드할 파일이 없음)
+		if(resource.exists() == false) {
+			return new ResponseEntity<Resource>(HttpStatus.NOT_FOUND);
+		}
+		
+		// 다운로드 헤더 만들기
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Disposition", "attachment; filename=" + tempName);  // 다운로드할 zip파일명은 타임스탬프로 만든 이름을 그대로 사용
+		header.add("Content-Length", file.length() + "");
+		
+		return new ResponseEntity<Resource>(resource, header, HttpStatus.OK);
+		
+	}
+	
+	@Override
+	public List<MailAtchDTO> getMailAttach(int mailNo) {
+		return mailMapper.selectMailAttachList(mailNo);
 	}
 	
 }

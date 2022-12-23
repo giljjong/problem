@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.gdu.mail.domain.EmpAddrDTO;
+import com.gdu.mail.domain.MailAtchDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.domain.SummernoteImageDTO;
@@ -31,4 +32,7 @@ public interface MailMapper {
 	public SummernoteImageDTO selectSummernoteImageListInMail(int mailNo);
 	public SummernoteImageDTO selectAllSummernoteImageList();
 	public int deleteSummernoteImage(String filesystem);
+	public int insertMailAttach(MailAtchDTO attach);
+	public List<MailAtchDTO> selectMailAttachList(int mailNo);
+	public MailAtchDTO selectMailAttachByNo(int fileNo);
 }

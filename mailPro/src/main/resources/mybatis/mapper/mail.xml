@@ -189,5 +189,24 @@
 		  FROM SUMMERNOTE_IMAGE
 		 WHERE FILESYSTEM = #{filesystem}
 	</delete>
+	
+	<insert id="insertMailAttach" parameterType="MailAtchDTO">
+		INSERT INTO MAIL_ATCH
+			(FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL)
+		VALUES
+			(MAIL_ATT_SEQ.NEXTVAL, MAIL_SEQ.CURRVAL, #{originName}, #{changeName}, #{mailPath}, SYSDATE, #{hasThumbnail})
+	</insert>
+	
+	<select id="selectMailAttachList" parameterType="int" resultType="MailAtchDTO">
+		SELECT FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL
+		  FROM MAIL_ATCH
+		 WHERE MAIL_NO = #{mailNo}
+	</select>
+	
+	<select id="selectMailAttachByNo" parameterType="int" resultType="MailAtchDTO">
+		SELECT FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL
+		  FROM MAIL_ATCH
+		 WHERE FILE_NO = #{fileNo}
+	</select>
 
 </mapper>

@@ -12,15 +12,79 @@
 <script src="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.js"></script>
 <script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
 <link rel="stylesheet" href="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.css">
-<style type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+	@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+	.upload_file {
+	  margin: 0;
+	  padding: 0;
+	  box-sizing: border-box;
+	  font-family: Pretendard, 'Malgun Gothic', sans-serif;
+	}
+
+	.upload_file {
+	  width: 50vw;
+	  height: 10vh;
+	   
+	  margin: .6rem;
+	  overflow: auto;
+	  
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	
+	  border-radius: 5px;
+	  border: 4px dashed #ddd;
+	  user-select: none;
+	  transition: 0.4s;
+	}
+	
+	.attach_btn {
+		display : inline-block;
+		width : 58px;
+		height : 24px;
+		font-size : 16px;
+		font-weight : 400;
+		border : 1.7px solid darkgray;
+		border-radius : 5px;
+		text-align : center;
+	}
+	
+	.attach_btn:hover {
+		cursor : pointer;
+	}
+
+	/* 드롭 반응 */
+	.upload_file.active {
+	  background: #ddd;
+	}
+	
 	.blind {
 		display: none;
 	}
+	
+	.addfile_msg, .addfile_list {
+		font-size : 1.2rem;
+	}
+	
+	.addfile_list {
+		padding-left : 14px;
+	}
+	
+	
+	.delete i{
+	    color: #ff5353;
+	    margin-left: 5px;
+	}
+	.filebox {
+		padding-top : -16px;
+	}
+	
 </style>
 <script>
 
 		$(function(){
-			console.log($('#mailNo').val());
 			
 			if('${mailNo}' != null && '${mailNo}' != 0) {
 				$('#mailNo').val('${mailNo}');
@@ -66,22 +130,24 @@
 			}  // callbacks
 		});
 		
-		$('#btn_send').click(function(){
-			$('#frm_send').submit();
-		});
-		
 		fn_getMailInfo();
 		fn_fileCheck();
+		fn_submit();
 		
+		if($('#attachCnt') != null){
+		 	$('.addfile_list').removeClass('blind');
+            $('.addfile_msg').addClass('blind');
+		}
 	})
 	
 	function fn_getMailInfo(){
 			
 		if($('#mailNo').val() != 0) {
+			
 			$.ajax({
 				type : 'post',
 				url : '${contextPath}/mail/get/reply',
-				data : 'mailNo=' + $('#mailNo').val() + '&deleteCheck=' + $('#deleteCheck').val() + '&receiveType=' + $('#receiveType').val(),
+				data : 'mailNo=' + $('#mailNo').val() +'&deleteCheck=' + $('#deleteCheck').val() + '&receiveType=' + $('#receiveType').val(),
 				dataType : 'json',
 				success : function(resData) {
 					
@@ -128,27 +194,7 @@
 			});
 		}
 	}
-		
-		function fn_fileCheck(){
-			$('#files').change(function(){
-				
-				let maxSize = 1024 * 1024 * 20;
-				
-				let files = this.files;
-				
-				for(let i = 0; i < files.length; i++){
-					if(files[i].size > maxSize) {
-						alert('20MB 이하의 파일만 첨부할 수 있습니다.');
-						$(this).val('');
-						return;
-					};
-					
-				};
-				
-				
-			});
-		};
-		
+
 </script>
 </head>
 <body>
@@ -165,7 +211,7 @@
 		
 		<hr>
 		
-		<form action="${contextPath}/mail/send" id="frm_send" method="post" enctype="multipart/form-data">
+		<form id="frm_send" method="post" enctype="multipart/form-data">
 			<div class="blind">
 				<input type="text" name="from" value="${mailUser.email}" readonly><br>
 				<input type="text" id="mailNo" name="mailNo" value="0" readonly><br>
@@ -180,19 +226,180 @@
 			
 			<label for="subject">제목</label>
 			<input type="text" name="subject" id="subject"><br>
-			<div>
-				<label for="files">파일 첨부</label>
-				<input type="file" id="files" name="files" multiple="multiple">
+			
+			<div class="insert">
+		    	<label for="files"><span class="attach_btn">내 PC</span></label>
+				<input type="file" id="files" class="blind" name="files" onchange="addFile(this);" multiple>	
+		        <div id="file_list"></div>
 			</div>
+			<div class="upload_file" draggable="true">
+				<div class="addfile_msg">파일을 마우스로 끌어오세요.</div>
+				<div class="addfile_list blind">
+					<c:if test="${attachCnt != 0}">
+						<c:forEach items="${attachList}" var="attach">
+						<!-- varstatus 만들기 -->
+							<div id="file' + ${attach.fileNo - vs} + '" class="filebox">
+					            <span class="name">${attach.originName}</span>
+					            <a class="delete" onclick="deleteFile('${attach.fileNo}');"><i class="far fa-minus-square"></i></a>
+					         </div>
+						</c:forEach>
+					</c:if>
+				</div>
+			</div>
+			
+			<script>
+				var fileNo = 0;
+				var filesArr = new Array();
+				
+				function fn_fileCheck(){
+					
+					const $drop = document.querySelector(".upload_file");
+					const $title = document.querySelector(".upload_file .addfile_list");
+					
+					// 드래그한 파일 객체가 해당 영역에 놓였을 때
+					$drop.ondrop = (e) => {
+					  e.preventDefault();
+					  $drop.className = "upload_file";
+					  const files = [...e.dataTransfer?.files];
+					  addFile(files);
+					}
+	
+					// ondragover 이벤트가 없으면 onDrop 이벤트가 실핻되지 않습니다.
+					$drop.ondragover = (e) => {
+					  e.preventDefault();
+					}
+	
+					// 드래그한 파일이 최초로 진입했을 때
+					$drop.ondragenter = (e) => {
+					  e.preventDefault();
+					 
+					  $drop.classList.add("active");
+					}
+	
+					// 드래그한 파일이 영역을 벗어났을 때
+					$drop.ondragleave = (e) => {
+					  e.preventDefault();
+					  
+					  $drop.classList.remove("active");
+					}
+				};
+	
+				/* 첨부파일 추가 */
+				function addFile(obj){
+				    var maxFileCnt = 10 - $('#attachCnt');   // 첨부파일 최대 개수
+				    var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
+				    var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
+				    
+					if(obj.length > 0){
+						var curFileCnt = obj.length;
+						var object = obj;
+					} else {
+						var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수
+						var object = obj.files;
+					}
+
+				    // 첨부파일 개수 확인
+				    if (curFileCnt > remainFileCnt) {
+				        alert("첨부파일은 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
+				    } else {
+				        for (const file of object) {
+				            // 첨부파일 검증
+				            if (validation(file)) {
+				                // 파일 배열에 담기
+				                var reader = new FileReader();
+				                reader.onload = function () {
+				                    filesArr.push(file);
+				                };
+				                reader.readAsDataURL(file);
+	
+				                // 목록 추가
+				                let htmlData = '';
+				                htmlData += '<div id="file' + fileNo + '" class="filebox">';
+				                htmlData += '<span class="name">' + file.name + '</span>';
+				                htmlData += '<a class="delete" onclick="deleteFile(' + fileNo + ');"><i class="far fa-minus-square"></i></a>';
+				                htmlData += '</div>';
+				                $('.addfile_list').append(htmlData);
+				                $('.upload_file').css('justify-content', 'left');
+				                $('.addfile_list').removeClass('blind');
+				                $('.addfile_msg').addClass('blind');
+				                fileNo++;
+				            } else {
+				                continue;
+				            }
+				        }
+				    }
+				    // 초기화
+				    document.querySelector("input[type=file]").value = "";
+				}
+	
+				/* 첨부파일 검증 */
+				function validation(obj){
+				    if (obj.name.length > 100) {
+				        alert("파일명이 100자 이상인 파일은 제외되었습니다.");
+				        return false;
+				    } else if (obj.size > (20 * 1024 * 1024)) {
+				        alert("최대 파일 용량인 20MB를 초과한 파일은 제외되었습니다.");
+				        return false;
+				    } else if (obj.name.lastIndexOf('.') == -1) {
+				        alert("확장자가 없는 파일은 제외되었습니다.");
+				        return false;
+				    } else {
+				        return true;
+				    }
+				}
+	
+				/* 첨부파일 삭제 */
+				function deleteFile(num) {
+				    document.querySelector("#file" + num).remove();
+				    filesArr[num].is_delete = true;
+				}
+				
+				function fn_submit(){
+					$('#btn_send').click(function(){
+						
+						var form = document.querySelector("form");
+					    var formData = new FormData(form);
+					    for (var i = 0; i < filesArr.length; i++) {
+					        // 삭제되지 않은 파일만 폼데이터에 담기
+					        if (!filesArr[i].is_delete) {
+					            formData.append("attachs", filesArr[i]);
+					        }
+					    }
+					    
+					    $.ajax({
+					    	type : 'post',
+					    	url : '${contextPath}/mail/send',
+					    	dataType : 'json',
+					    	data: formData,
+					    	processData : false,
+					    	contentType : false,
+					    	success : function(resData){
+					    		if(resData == 200) {
+					    			location.href='${contextPath}/mail/sendSuccess';
+					    		} else {
+					    			// alert('메일 전송이 실패했습니다.');
+					    			location.href='${contextPath}/mail/sendSuccess';
+					    		}
+					    	}
+					    });	// ajaxz
+						
+						
+					});	// click
+				}	// fn
+				
+			</script>
+			<input type="button" id="btn_check" value="파일확인">
+			
 			<div>
 				<label for="mailContent">내용</label>
-				<textarea id="mailContent" name="mailContent"><span id="textArea"></span></textarea>
+				<textarea id="mailContent" name="mailContent"><div id="textArea"></div></textarea>
 			</div>
 			<div id="summernote_image_list"></div>
 		</form>
 		<div class="blind">
 			<input type="hidden" class="blind" id="deleteCheck" name="deleteCheck" value="${receivData.deleteCheck}">
 			<input type="hidden" class="blind" id="receiveType" name="receiveType" value="${receivData.receiveType}">
+			<input type="hidden" id="attachCnt" value="${attachCnt}">
 		</div>
 	</div>
 </body>

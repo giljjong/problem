@@ -3,11 +3,14 @@ package com.gdu.mail.util;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
+import javax.activation.CommandMap;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.activation.MailcapCommandMap;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -29,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdu.mail.domain.EmpAddrDTO;
+import com.gdu.mail.domain.MailAtchDTO;
 import com.gdu.mail.domain.MailDTO;
 
 @Component
@@ -39,7 +43,7 @@ public class MailIUtil {
 	
 	static final Logger LOGGER = LoggerFactory.getLogger(MailIUtil.class);
 	
-	public boolean sendMail(EmpAddrDTO fromInfo, MailDTO mail, String[] summernoteImageNames) {
+	public boolean sendMail(EmpAddrDTO fromInfo, MailDTO mail, String[] summernoteImageNames, List<MailAtchDTO> attachs) {
 		
 		// 이메일 전송을 위한 필수 속성을 Properties 객체로 생성
 		Properties properties = new Properties();
@@ -78,6 +82,21 @@ public class MailIUtil {
 					mp.addBodyPart(getImage(summernoteImageNames[i], "<image" + i + ">"));
 				}
 			}
+			
+		    if(attachs != null) {
+		    	for(MailAtchDTO attach : attachs) {
+		    		mp.addBodyPart(getFileAttachment(attach.getMailPath(), attach.getChangeName()));	
+		    	}
+		    }
+
+			
+			MailcapCommandMap MailcapCmdMap = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
+		    MailcapCmdMap.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html");
+		    MailcapCmdMap.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml");
+		    MailcapCmdMap.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
+		    MailcapCmdMap.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
+		    MailcapCmdMap.addMailcap("message/rfc822;; x-java-content-handler=com.sun.mail.handlers.message_rfc822");
+		    CommandMap.setDefaultCommandMap(MailcapCmdMap);
 			
 			Transport.send(message);
 			return true;
