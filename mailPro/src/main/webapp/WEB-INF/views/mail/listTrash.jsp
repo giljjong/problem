@@ -34,10 +34,19 @@
 	});
 	
 	function fn_getMailList(){
+		
+		var page;
+		if($('#page').val() == null){
+			page = 1;
+		} else {
+			page = $('#page').val();
+		};
+		
 		$.ajax({
 			type : 'get',
 			url : '${contextPath}/get/trash',
 			dataType : 'json',
+			data : 'page=' + page,
 			success : function(resData){
 				$('.cnt_mail').empty();
 				$('#mailBody').empty();
@@ -56,8 +65,29 @@
 				.append($('<td>').html(mail.readCheck == 'N' ? '<a class="detail_text"><strong>' + mail.subject + '</strong></a>' : '<a class="detail_text">' + mail.subject + '</a>'))
 				.append($('<td>').html(mail.receiveDate))
 				.appendTo($('#mailBody'))
+				});
 				
-				})
+				$('#paging').empty();
+				var pageUtil = resData.pageUtil;
+				var paging = '';
+				// 이전 블록
+				if(pageUtil.beginPage != 1) {
+					paging += '<span class="enable_link" data-page="'+ (pageUtil.beginPage - 1) +'">◀</span>';
+				}
+				// 페이지번호
+				for(let p = pageUtil.beginPage; p <= pageUtil.endPage; p++) {
+					if(p == $('#page').val()){
+						paging += '<strong>' + p + '</strong>';
+					} else {
+						paging += '<span class="enable_link" data-page="'+ p +'">' + p + '</span>';
+					}
+				}
+				// 다음 블록
+				if(pageUtil.endPage != pageUtil.totalPage){
+					paging += '<span class="enable_link" data-page="'+ (pageUtil.endPage + 1) +'">▶</span>';
+				}
+				$('#paging').append(paging);
+				
 			}
 		});
 	}
@@ -90,25 +120,27 @@ function fn_checkChoice(){
 		
 		var mailNo = new Array();
 		var readCheck = new Array();
+		var receiveType = new Array();
 		$(document).on('click', '.check_one', function(event){
 			if($(this).is(":checked")) {
 				mailNo.push($(this).val());
 				readCheck.push($(this).parent().next().next().next().children().first().val());
+				receiveType.push($(this).parent().next().text());
 			} else if($(this).is(":checked") == false){
 				for(var i = 0; i < mailNo.length; i++){
 					if($(this).val() == mailNo[i]){
 						mailNo.splice(i, 1);
 						readCheck.splice(i, 1);
+						receiveType.splice(i, 1);
 					}	//if
 				}	// for
 			} // else if
-			console.log(objParams);
 		}) // onClick
 		
 		var objParams = {
                 "mailNo"      : mailNo,
                 "readCheck"	  : readCheck,
-                "receiveType" : "send"
+                "receiveType" : receiveType
         };
 		
 		$(document).on('click', '.btn_readChg', function(event){
@@ -129,7 +161,7 @@ function fn_checkChoice(){
 		$(document).on('click', '.delete', function(event){
 			$.ajax({
 				type : 'post',
-				url : '${contextPath}/remove/mail/trash',
+				url : '${contextPath}/delete/mail/completely',
 				data : objParams,
 				dataType : 'json',
 				success : function(resData){
@@ -208,7 +240,7 @@ function fn_checkChoice(){
 					<div class="btn_group">
 						<div><input type="checkbox" id="check_all" class="lbl_all"></div>
 						<div><button class="btn_toggle btn_readChg">읽음</button></div>
-						<div><button class="btn_toggle"><span class="text">삭제</span></button></div>
+						<div><button class="btn_toggle delete"><span class="text">삭제</span></button></div>
 					</div>
 					<div class="btn_group">
 						<div><span class="snb_bar"></span></div>
@@ -236,8 +268,7 @@ function fn_checkChoice(){
 						<input type="hidden" name="in" id="in" value="trash">
 					</form>
 				</div>
-				<div>
-					${paging}
+				<div id="paging">
 				</div>
 			</div>
 		</div>

@@ -133,8 +133,10 @@
 		fn_getMailInfo();
 		fn_fileCheck();
 		fn_submit();
+		fn_getAttachInArray();
 		
-		if($('#attachCnt') != null){
+		if($('#attachCnt').val() != ""){
+			$('.upload_file').css('justify-content', 'left');
 		 	$('.addfile_list').removeClass('blind');
             $('.addfile_msg').addClass('blind');
 		}
@@ -194,7 +196,7 @@
 			});
 		}
 	}
-
+		
 </script>
 </head>
 <body>
@@ -236,11 +238,12 @@
 				<div class="addfile_msg">파일을 마우스로 끌어오세요.</div>
 				<div class="addfile_list blind">
 					<c:if test="${attachCnt != 0}">
-						<c:forEach items="${attachList}" var="attach">
+						<c:forEach items="${attachList}" var="attach" varStatus="vs">
 						<!-- varstatus 만들기 -->
-							<div id="file' + ${attach.fileNo - vs} + '" class="filebox">
+							<div id="fileNo${vs.index}" class="filebox">
+								<span class="blind" id="get_attach${vs.index}">${attach.fileNo}</span>
 					            <span class="name">${attach.originName}</span>
-					            <a class="delete" onclick="deleteFile('${attach.fileNo}');"><i class="far fa-minus-square"></i></a>
+					            <a class="delete" onclick="fn_exceptFile('${vs.index}');"><i class="far fa-minus-square"></i></a>
 					         </div>
 						</c:forEach>
 					</c:if>
@@ -250,6 +253,13 @@
 			<script>
 				var fileNo = 0;
 				var filesArr = new Array();
+				var filNoArr = new Array();
+				
+				function fn_getAttachInArray(){
+					for(let i = 0; i < ${attachCnt}; i++){
+						filNoArr.push($('#get_attach' + i).text());
+					}
+				}
 				
 				function fn_fileCheck(){
 					
@@ -316,7 +326,7 @@
 				                let htmlData = '';
 				                htmlData += '<div id="file' + fileNo + '" class="filebox">';
 				                htmlData += '<span class="name">' + file.name + '</span>';
-				                htmlData += '<a class="delete" onclick="deleteFile(' + fileNo + ');"><i class="far fa-minus-square"></i></a>';
+				                htmlData += '<a class="delete" onclick="fn_deleteFile(' + fileNo + ');"><i class="far fa-minus-square"></i></a>';
 				                htmlData += '</div>';
 				                $('.addfile_list').append(htmlData);
 				                $('.upload_file').css('justify-content', 'left');
@@ -349,9 +359,14 @@
 				}
 	
 				/* 첨부파일 삭제 */
-				function deleteFile(num) {
+				function fn_deleteFile(num) {
 				    document.querySelector("#file" + num).remove();
 				    filesArr[num].is_delete = true;
+				}
+				
+				function fn_exceptFile(num){
+					document.querySelector("#fileNo" + num).remove();
+					filNoArr.splice(num, 1);
 				}
 				
 				function fn_submit(){
@@ -359,12 +374,17 @@
 						
 						var form = document.querySelector("form");
 					    var formData = new FormData(form);
-					    for (var i = 0; i < filesArr.length; i++) {
+					    
+					    for(let i = 0; i < filNoArr.length; i++){
+						    formData.append("fileNo", filNoArr[i]);
+					    };
+					    
+					    for(let i = 0; i < filesArr.length; i++) {
 					        // 삭제되지 않은 파일만 폼데이터에 담기
 					        if (!filesArr[i].is_delete) {
 					            formData.append("attachs", filesArr[i]);
 					        }
-					    }
+					    };
 					    
 					    $.ajax({
 					    	type : 'post',

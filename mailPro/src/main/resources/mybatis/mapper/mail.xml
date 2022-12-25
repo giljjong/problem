@@ -197,6 +197,14 @@
 			(MAIL_ATT_SEQ.NEXTVAL, MAIL_SEQ.CURRVAL, #{originName}, #{changeName}, #{mailPath}, SYSDATE, #{hasThumbnail})
 	</insert>
 	
+	<insert id="insertMailAttachByFileNo" parameterType="int">
+		INSERT INTO MAIL_ATCH
+			(FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL)
+				(SELECT MAIL_ATT_SEQ.NEXTVAL, MAIL_SEQ.CURRVAL, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, SYSDATE, HAS_THUMBNAIL
+  				   FROM MAIL_ATCH
+ 				  WHERE FILE_NO = #{fileNo})
+	</insert>
+	
 	<select id="selectMailAttachList" parameterType="int" resultType="MailAtchDTO">
 		SELECT FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL
 		  FROM MAIL_ATCH
@@ -208,5 +216,13 @@
 		  FROM MAIL_ATCH
 		 WHERE FILE_NO = #{fileNo}
 	</select>
+	
+	<delete id="deleteReceiver" parameterType="map">
+		DELETE
+		  FROM RECEIVERS
+		 WHERE REC_EMP_NO = #{empNo}
+		   AND MAIL_NO = #{mailNo}
+		   AND RECEIVE_TYPE = #{receiveType}
+	</delete>
 
 </mapper>

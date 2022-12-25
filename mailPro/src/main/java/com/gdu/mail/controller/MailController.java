@@ -57,8 +57,8 @@ public class MailController {
 	
 	@ResponseBody
 	@PostMapping("/mail/send")
-	public Map<String, Object> save(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, MailDTO mail) {
-		return mailService.saveMail(multipartRequest, response, mail);
+	public Map<String, Object> save(MultipartHttpServletRequest multipartRequest, MailDTO mail) {
+		return mailService.saveMail(multipartRequest, mail);
 	}
 	
 	@GetMapping("/mail/sendSuccess")
@@ -118,7 +118,7 @@ public class MailController {
 	}
 	
 	@ResponseBody
-	@PostMapping("/remove/mail/trash")
+	@PostMapping("/delete/mail/trash")
 	public Map<String, Object> moveInTrash(@RequestParam(value="mailNo[]") List<String> mailNo, @RequestParam("receiveType") String receiveType, HttpServletRequest request) {
 		return mailService.moveInTrash(mailNo, receiveType, request);
 	}
@@ -155,6 +155,12 @@ public class MailController {
 	@GetMapping("/mail/downloadAll")
 	public ResponseEntity<Resource> downloadAll(@RequestHeader("User-Agent") String userAgent, @RequestParam("mailNo") int mailNo) {
 		return mailService.downloadAll(userAgent, mailNo);
+	}
+	
+	@ResponseBody
+	@PostMapping("/delete/mail/completely")
+	public Map<String, Object> deleteCompletely(@RequestParam(value="mailNo[]") List<String> mailNo, @RequestParam(value="receiveType[]") List<String> receiveType, HttpServletRequest request) {
+		return mailService.deleteReceiverData(mailNo, receiveType, request);
 	}
 	
 }

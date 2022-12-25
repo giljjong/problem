@@ -1,0 +1,95 @@
+[33mcommit 311370674e540f24cc46f5e1b39c932269f1aa31[m[33m ([m[1;36mHEAD -> [m[1;32msub[m[33m)[m
+Author: giljjong <doriyet@naver.com>
+Date:   Thu Dec 22 17:50:32 2022 +0900
+
+    이미지 첨부 구현, 첨부파일  구현
+
+[33mcommit 7f9375169e439a8e297c933b7cca1bb7dcb8f181[m
+Author: giljjong <doriyet@naver.com>
+Date:   Wed Dec 21 18:11:20 2022 +0900
+
+    이미지 포함 메일 전송 구현 및 전체 삭제, 전체 읽기 구현
+
+[33mcommit 9a28a929722c5f3a57c73c4f72877d2bb22def23[m
+Author: giljjong <doriyet@naver.com>
+Date:   Tue Dec 20 17:57:56 2022 +0900
+
+    보낸 메일함, 휴지통 구현
+
+[33mcommit 7fa306a172c2d9e88e1e2c319b4dedb82f8d44d0[m
+Author: giljjong <doriyet@naver.com>
+Date:   Mon Dec 19 21:00:05 2022 +0900
+
+    답장 보완, 전달 구현
+
+[33mcommit 3c18727e441ba6b9754a68b1a976cc1ce215a854[m
+Author: giljjong <doriyet@naver.com>
+Date:   Mon Dec 19 19:51:32 2022 +0900
+
+    igored 추가
+
+[33mcommit 38cd5bb4a4d8a9b74191afd8240ad1bd52d37db8[m
+Author: giljjong <doriyet@naver.com>
+Date:   Mon Dec 19 19:46:48 2022 +0900
+
+    왜 에러임
+
+[33mcommit f028f00d095e0b830a024d9d78e4bbf9134319c7[m
+Author: giljjong <doriyet@naver.com>
+Date:   Mon Dec 19 17:52:30 2022 +0900
+
+    detail 구현, 답장 구현
+
+[33mcommit c8bdb5e4d8bd35767b5bff96b079d30c92979375[m
+Author: giljjong <doriyet@naver.com>
+Date:   Sun Dec 18 01:49:51 2022 +0900
+
+    메일 송신 구현 완료, 수신 메일 리스트 구현
+
+[33mcommit 99a15704c856cb69e198404a2f60d1e6d525a2e2[m
+Author: giljjong <doriyet@naver.com>
+Date:   Fri Dec 16 17:52:44 2022 +0900
+
+    메일 송신 기능 구현
+
+[33mcommit b2aabf2dd1ca0dd3fba595339f857a54de386f04[m
+Author: giljjong <doriyet@naver.com>
+Date:   Thu Dec 15 18:11:36 2022 +0900
+
+    프로젝트 준비
+
+[33mcommit 97d6910b39890ee3820e8d8b68a73af7f6e0401e[m
+Author: giljjong <doriyet@naver.com>
+Date:   Thu Nov 24 13:34:40 2022 +0900
+
+    afs
+
+[33mcommit d82ef65a573bf7881617334c14b413b678ce97b8[m
+Author: giljjong <doriyet@naver.com>
+Date:   Thu Nov 24 13:29:35 2022 +0900
+
+    왜되는거냐
+
+[33mcommit a6f41b3817d9d8b5350ec23725d8242e0dce0a51[m
+Author: gilljjong <jjk6420@naver.com>
+Date:   Wed Nov 23 23:00:11 2022 +0900
+
+    why
+
+[33mcommit c4cb18aa09827eaadb35752e36b7c11dbd6d13b3[m
+Author: giljjong <doriyet@naver.com>
+Date:   Wed Nov 23 18:45:23 2022 +0900
+
+    say
+
+[33mcommit 553d7e916bf35249eaacdc788901e7647031e11c[m
+Author: giljjong <doriyet@naver.com>
+Date:   Wed Nov 23 18:43:58 2022 +0900
+
+    test1
+
+[33mcommit 56ece53febd38d104a7c2da4c2651d7e4bd9a999[m
+Author: giljjong <doriyet@naver.com>
+Date:   Wed Nov 23 18:41:07 2022 +0900
+
+    test

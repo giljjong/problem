@@ -57,8 +57,8 @@
 							<div class="mail-success">
 								<label>메일을 성공적으로 발송하였습니다.</label><br>
 								<span>보낸메일함에서 확인할 수 있습니다.</span><br>
-								<button type="button" style="width:120px;" onclick="location.href='box.ma'">받은메일함 이동</button>
-								<button type="button" style="width:80px;" onclick="location.href='enrollForm.ma'">다시쓰기</button>
+								<button type="button" style="width:120px;" onclick="location.href='${contextPath}/mail/folder/list'">받은메일함 이동</button>
+								<button type="button" style="width:80px;" onclick="location.href='${contextPath}//mail/write'">메일쓰기</button>
 								<button type="button" style="width:100px;" onclick="location.href='${contextPath}/mail/folder/list'">홈으로 이동</button>
 							</div>
 						</div>

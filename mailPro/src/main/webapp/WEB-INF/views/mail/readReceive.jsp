@@ -78,7 +78,7 @@
 		$.ajax({
 			type : 'post',
 			url : '${contextPath}/mail/change/readCheck',
-			data : 'mailNo=' + $('#mailNo').val() + '&receiveType=' + $('#receiveType').val(),
+			data : 'mailNo[]=' + $('#mailNo').val() + '&readCheck[]=' + $('#readCheck').val(),
 			dataType : 'json',
 			success : function(resData) {
 				if(resData.isResult){
@@ -105,7 +105,7 @@
 					<a href="#" onClick="fn_notReadChange();">안읽음</a>
 				</div>
 				<div class="mail_list_tool">
-					<a href="#">목록</a>
+					<a href="${contextPath}/mail/folder/list">목록</a>
 					<a href="#">△</a>
 					<a href="#">▽</a>
 				</div>
@@ -132,6 +132,7 @@
 						</c:forEach>
 					</div>
 						<input type="hidden" name="receiveType" value="${receivData.receiveType}">
+						<input type="hidden" name="readCheck" id="readCheck" value="${mail.readCheck}">
 					<form name="write_frm" class="blind">
 						<input type="hidden" name="email">
 						<input type="hidden" name="mailNo" id="mailNo" value="${mail.mailNo}">

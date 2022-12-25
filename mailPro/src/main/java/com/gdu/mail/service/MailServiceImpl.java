@@ -17,12 +17,11 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.FileSystemResource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,7 @@ import com.gdu.mail.domain.MailAtchDTO;
 import com.gdu.mail.domain.MailDTO;
 import com.gdu.mail.domain.ReceiversDTO;
 import com.gdu.mail.domain.SummernoteImageDTO;
-import com.gdu.mail.mapper.AddrMapper;
+import com.gdu.mail.mapper.AddressMapper;
 import com.gdu.mail.mapper.EmpMapper;
 import com.gdu.mail.mapper.MailMapper;
 import com.gdu.mail.util.MailIUtil;
@@ -63,14 +62,14 @@ public class MailServiceImpl implements MailService {
 	private PageUtil pageUtil;
 	
 	@Autowired
-	private AddrMapper addrMapper;
+	private AddressMapper addrMapper;
 	
 	@Autowired
 	private MyFileUtil myFileUtil;
 	
 	@Transactional
 	@Override
-	public Map<String, Object> saveMail(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, MailDTO mail) {
+	public Map<String, Object> saveMail(MultipartHttpServletRequest multipartRequest, MailDTO mail) {
 		EmpAddrDTO mailUser = (EmpAddrDTO)multipartRequest.getSession().getAttribute("mailUser");
 		int empNo = mailUser.getEmpNo();
 		mail.setEmpNo(empNo);
@@ -89,6 +88,14 @@ public class MailServiceImpl implements MailService {
     		
     		int attachResult;
     		List<MailAtchDTO> atch = new ArrayList<>();
+    		String[] fileNos = multipartRequest.getParameterValues("fileNo");
+    		
+    		
+    		if(fileNos !=  null) {
+    			for(int i = 0; i < fileNos.length; i++) {
+    				mailMapper.insertMailAttachByFileNo(Integer.parseInt(fileNos[i]));
+    			}
+    		}
     		
     		for(MultipartFile multipartFile : files) {
     			
@@ -104,6 +111,7 @@ public class MailServiceImpl implements MailService {
     							mailMapper.insertSummernoteImage(summernoteImage);
     						}
     					}
+    					
     				
 	    				// 첨부가 있는지 점검
 	    				if(multipartFile != null && multipartFile.isEmpty() == false) {  // 둘 다 필요함
@@ -299,11 +307,10 @@ public class MailServiceImpl implements MailService {
 		
 		Map<String, Object> result = new HashMap<>();
 		
-		result.put("paging", pageUtil.getPaging(request.getContextPath() + "/mail/listReceive"));
 		result.put("mailList", mailList);
-		result.put("beginNo", totalRecord - (page - 1) * pageUtil.getRecordPerPage());
 		result.put("totalRecord", totalRecord);
 		result.put("nReadCnt", nReadCnt);
+		result.put("pageUtil", pageUtil);
 		
 		return result;
 	}
@@ -450,10 +457,6 @@ public class MailServiceImpl implements MailService {
 				updateResult += mailMapper.updateCheckByMap(map);
 			}
 			
-			System.out.println(empNo + "번호");
-			System.out.println(mailNo.get(i) + "메일");
-			System.out.println(deleteCheck + "지우기");
-			
 			map.clear();
 
 		}
@@ -465,8 +468,6 @@ public class MailServiceImpl implements MailService {
 		} else {
 			result.put("isDelete", false);
 		}
-
-		
 		return result;
 	}
 	
@@ -625,6 +626,37 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public List<MailAtchDTO> getMailAttach(int mailNo) {
 		return mailMapper.selectMailAttachList(mailNo);
+	}
+	
+	@Override
+	public Map<String, Object> deleteReceiverData(List<String> mailNo, List<String> receiveType, HttpServletRequest request) {
+		
+		int empNo = ((EmpAddrDTO)request.getSession().getAttribute("mailUser")).getEmpNo();
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		int updateResult = 0;
+		
+		for(int i = 0; i < mailNo.size(); i++) {
+			
+			map.put("empNo", empNo);
+			map.put("mailNo", mailNo.get(i));
+			map.put("receiveType", receiveType.get(i));
+			
+			updateResult += mailMapper.deleteReceiver(map);
+			
+			map.clear();
+
+		}
+		
+		Map<String, Object> result = new HashMap<>();
+		
+		if(updateResult == mailNo.size()) {
+			result.put("isDelete", true);
+		} else {
+			result.put("isDelete", false);
+		}
+		return result;
 	}
 	
 }

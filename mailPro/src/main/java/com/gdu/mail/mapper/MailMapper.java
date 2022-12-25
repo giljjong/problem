@@ -35,4 +35,6 @@ public interface MailMapper {
 	public int insertMailAttach(MailAtchDTO attach);
 	public List<MailAtchDTO> selectMailAttachList(int mailNo);
 	public MailAtchDTO selectMailAttachByNo(int fileNo);
+	public int insertMailAttachByFileNo(int fileNo);
+	public int deleteReceiver(Map<String, Object> map);
 }

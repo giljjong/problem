@@ -34,10 +34,19 @@
 	});
 	
 	function fn_getMailList(){
+		
+		var page;
+		if($('#page').val() == null){
+			page = 1;
+		} else {
+			page = $('#page').val();
+		};
+		
 		$.ajax({
 			type : 'get',
 			url : '${contextPath}/list/mail',
 			dataType : 'json',
+			data : 'page=' + page,
 			success : function(resData){
 				$('.cnt_mail').empty();
 				$('#mailBody').empty();
@@ -56,7 +65,29 @@
 				.append($('<td>').html(mail.receiveDate))
 				.appendTo($('#mailBody'))
 				
-				})
+				});
+				
+				$('#paging').empty();
+				var pageUtil = resData.pageUtil;
+				var paging = '';
+				// 이전 블록
+				if(pageUtil.beginPage != 1) {
+					paging += '<span class="enable_link" data-page="'+ (pageUtil.beginPage - 1) +'">◀</span>';
+				}
+				// 페이지번호
+				for(let p = pageUtil.beginPage; p <= pageUtil.endPage; p++) {
+					if(p == $('#page').val()){
+						paging += '<strong>' + p + '</strong>';
+					} else {
+						paging += '<span class="enable_link" data-page="'+ p +'">' + p + '</span>';
+					}
+				}
+				// 다음 블록
+				if(pageUtil.endPage != pageUtil.totalPage){
+					paging += '<span class="enable_link" data-page="'+ (pageUtil.endPage + 1) +'">▶</span>';
+				}
+				$('#paging').append(paging);
+				
 			}
 		});
 	}
@@ -103,7 +134,7 @@
 		$(document).on('click', '.delete', function(event){
 			$.ajax({
 				type : 'post',
-				url : '${contextPath}/remove/mail/trash',
+				url : '${contextPath}/delete/mail/trash',
 				data : objParams,
 				dataType : 'json',
 				success : function(resData){
@@ -191,6 +222,7 @@
 				<li><a href="${contextPath}/mail/folder/send">보낸메일함</a></li>
 				<li><a href="${contextPath}/mail/folder/trash">휴지통</a></li>
 				<li><a href="${contextPath}/mail/write">메일쓰기</a></li>
+				<li><a href="${contextPath}/addr/addressList">주소록</a></li>
 			</ul>
 		</div>
 		
@@ -232,8 +264,7 @@
 						<input type="hidden" name="receiveType" id="receiveType" value="To">
 					</form>
 				</div>
-				<div>
-					${paging}
+				<div id="paging">
 				</div>
 			</div>
 		</div>

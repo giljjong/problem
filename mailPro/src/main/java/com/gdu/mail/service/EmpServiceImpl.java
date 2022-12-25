@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gdu.mail.domain.EmpAddrDTO;
 import com.gdu.mail.domain.EmployeesDTO;
-import com.gdu.mail.mapper.AddrMapper;
+import com.gdu.mail.mapper.AddressMapper;
 import com.gdu.mail.mapper.EmpMapper;
 import com.gdu.mail.mapper.MailMapper;
 import com.gdu.mail.util.SecurityUtil;
@@ -30,7 +30,7 @@ public class EmpServiceImpl implements EmpService {
 	private MailMapper mailMapper;
 	
 	@Autowired
-	private AddrMapper addrMapper;
+	private AddressMapper addrMapper;
 	
 	@Autowired
 	private SecurityUtil securityUtil;
@@ -83,8 +83,9 @@ public class EmpServiceImpl implements EmpService {
 				
 				int mailResult = mailMapper.insertJamesUser(empInfo);
 				mailResult += addrMapper.insertEmpAddr(empInfo);
+				mailResult += addrMapper.insertUnspecifiedGroup(empNo);
 				
-				if(mailResult > 1) {
+				if(mailResult > 2) {
 					request.getSession().setAttribute("mailUser", empInfo);
 				}
 				
