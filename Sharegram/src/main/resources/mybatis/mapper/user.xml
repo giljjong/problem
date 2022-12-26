@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+<mapper namespace="com.group.sharegram.user.mapper.EmpMapper">
+  
+  <!--조인을 위한 resultMap -->
+  <!-- column:DB 칼럼명 , property: DTO 필드명 -->
+  <resultMap  type="DepartmentsDTO" id="DeptMap">
+  	<result column="DEPT_NO" property="deptNo"/>
+  	<result column="DEPT_NAME" property="deptName"/>
+  </resultMap>
+  
+  <resultMap type="EmployeesDTO" id="EmpMap">
+  	<result column="EMP_NO" property="empNo"/>
+  	<result column="EMP_PW" property="empPw"/>
+  	<result column="NAME" property="name"/>
+  	<result column="BIRTHDAY" property="birthday"/>
+  	<result column="JOIN_DATE" property="joinDate"/>
+  	<result column="PROF_IMG" property="profImg"/>
+  	<result column="INFO_MODIFY_DATE" property="infoModifyDate"/>
+  	<result column="STATUS" property="status"/>
+  	<result column="SALARY" property="salary"/>
+  	<result column="JOB_NO" property="jobNo"/>
+  	<result column="DEPT_NO" property="deptNo"/>
+  	<result column="PHONE" property="phone"/>
+    <collection resultMap="DeptMap" property="departmentsDTO"/>
+    <collection resultMap="PosMap" property="positionDTO"/>
+  </resultMap>  
+  
+ <resultMap type="PositionDTO" id="PosMap">
+  	<result column="JOB_NO" property="jobNo"/>
+  	<result column="JOB_NAME" property="jobName"/>
+  </resultMap>
+
+	<!-- 아이디 중복체크, 로그인, 마이페이지 가기 전 비밀번호 확인 -->
+	<select id="selectEmpByMap" parameterType="Map" resultType="EmployeesDTO">
+		SELECT EMP_NO, EMP_PW, NAME, BIRTHYEAR, BIRTHDAY, JOIN_DATE, PROF_IMG, INFO_MODIFY_DATE, STATUS, SALARY, JOB_NO, JOB_NO, PHONE
+		  FROM EMPLOYEES
+		<where>
+			 <if test="empNo != null">
+			 	EMP_NO = #{empNo}
+			 </if>
+			 <if test="empPw != null">
+			 	AND EMP_PW = #{empPw}
+			 </if>	  
+		</where>	
+	</select>
+	
+	<!-- 아이디 중복체크2 -->
+	<select id="selectRetireEmpByNo" parameterType="int" resultType="RetiredDTO">
+		SELECT EMP_NO
+		  FROM RETIRE_USERS
+		 WHERE EMP_NO = #{empNo}
+	</select>
+
+	<!-- 직원 등록하기 -->
+	<insert id="insertEmp" parameterType="EmployeesDTO" >
+		<selectKey keyProperty="empNo" resultType="int" order="BEFORE">
+			SELECT TO_NUMBER(TO_CHAR(SYSDATE,'YYMM')) || LPAD(EMP_SEQ.NEXTVAL,4,0)
+				FROM DUAL
+		</selectKey> 
+		INSERT INTO 
+			EMPLOYEES
+				(EMP_NO,EMP_PW,NAME,BIRTHYEAR, BIRTHDAY, JOIN_DATE, INFO_MODIFY_DATE, SALARY, JOB_NO, DEPT_NO ,PHONE , STATUS)
+			 VALUES
+		 		<!-- 사번: 입사년도,월 두자리+emp_seq.nextval로 이루어짐-->
+		 		( #{empNo},
+		 	  #{empPw},#{name}, #{birthyear} ,#{birthday}, SYSDATE, SYSDATE, #{salary}, #{jobNo}, #{deptNo}, #{phone}, #{status} )
+	</insert>
+	
+	<!-- 퇴사자 : RETIRED 테이블에 추가 -->
+	<insert id="insertRetireEmp" parameterType="RetiredDTO">
+		INSERT INTO RETIRED
+			(EMP_NO , NAME , PHONE,JOIN_DATE,RETIRED_DATE,JOB_NO,DEPT_NO)
+		VALUES
+			(#{empNo}, #{name}, #{phone}, #{jobNo}, #{deptNo}, #{joinDate}, SYSDATE )
+	</insert>
+	
+	
+	<!-- 관리자 -->
+	<!-- 직원 정보 변경 -->
+	<update id="updateEmp" parameterType="EmployeesDTO">
+		UPDATE EMPLOYEES
+		   SET EMP_PW=#{empPw}
+		     , NAME=#{name} 
+		     , PHONE=#{phone}
+		     , SALARY=#{salary}
+		     , STATUS=#{status}
+		     , JOB_NO=#{jobNo}
+		     , DEPT_NO=#{deptNo}
+		     , INFO_MODIFY_DATE=SYSDATE
+		WHERE EMP_NO =#{empNo}	
+		
+		<!-- 직책이 부장일경우 공지사항 작성 가능-->
+		<!-- 인사부 부장의 경우 공지사항 및 직원 관리(입사,퇴사,직원 정보 변경 등) 가능 -->	
+		<!--  <choose> 이용...어케하징? 생각쓰 해보기-->
+		
+		
+		
+		
+		
+		
+		
+	</update>
+	
+	
+	<!-- 마이페이지 : 정보변경 -->
+	<update id="updateMyPassword" parameterType="EmployeesDTO">
+		UPDATE EMPLOYEES
+		   SET EMP_PW = #{empPw}
+		 WHERE EMP_NO = #{empNo}
+	</update>
+	<!-- 마이페이지 : 정보변경 -->
+	<update id="updateMyinfo" parameterType="EmployeesDTO">
+		UPDATE EMPLOYEES
+		   SET PROF_IMG = #{profImg}
+		     , PHONE = #{phone}
+		     , STATUS= #{status}
+		     , INFO_MODIFY_DATE= SYSDATE
+		 WHERE EMP_NO = #{empNo}
+	</update>
+	
+	
+	<!-- 비밀번호 찾기 -->
+	<update id="updatePw" parameterType="map">
+		UPDATE EMPLOYEES
+		   SET EMP_PW = #{empPw}
+		 WHERE EMP_NO = #{empNo}
+	</update>
+	
+	
+	
+	
+	<!-- List 만들기 -->	
+	
+	<!-- 사원 카운트 -->
+  	<select id="selectAllEmpListCnt" resultType="int">
+  		SELECT COUNT(*)
+		  FROM EMPLOYEES
+	</select>
+
+	
+	<select id="selectEmpByPage" parameterType="Map" resultMap="EmpMap">
+		   SELECT B.*
+             FROM (SELECT ROWNUM AS RN, AA.*
+             FROM (SELECT  A.*, P.JOB_NAME
+              FROM(SELECT E.*, D.DEPT_NAME
+                     FROM DEPARTMENTS D RIGHT OUTER JOIN EMPLOYEES E
+                       ON D.DEPT_NO = E.DEPT_NO
+                       )A JOIN POSITION P
+                       ON A.JOB_NO =P.JOB_NO)AA)B
+ 		      WHERE B.RN BETWEEN #{begin} AND #{end}
+   </select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+<!--	 <choose> : 태그 안에 있는 when 을 고른다.
+		 <when> : <when : test = "조건문"> 을 쓰는데 조건문이 맞을때는 when 태그 안에있는 쿼리문을 실행한다
+		 <otherwise> : choose안에 있는 when 태그중 조건에 맞지 않는게 없을 때 otherwise에 있는걸 반환한다 (생략가능) -->
+	
+<!-- <choose>
+　　　　<when test="조건문">
+　　　　</when>
+　　　　<otherwise>
+　　　　</otherwise>
+	 </choose>
+	 -->
+	 
+<!-- choose = swich
+	 when = case
+	 otherwise = default	  -->
+	
+	
+<!-- 	<select id="selectEmpPage" parameterType="Map" resultMap="EmpMap">
+	
+		SELECT A.*
+		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY
+		  <choose>
+		  <when test="title=='EMP_NO'">E.EMP_NO</when>
+		  <otherwise>${title}</otherwise>
+		  </choose>
+	${order}) AS RN, E.*, D.DEPT_NAME
+	     FORM DEPARTMENTS D RIGHT OUTER JOIN EMPLOYEES E
+	       ON D.DEPT_NO = E.DEPT_NO) A
+	    WHERE A.RN BETWEEN #{begin} AND #{end}  
+	</select> -->
+	
+	
+	
+
+	
+	
+
+</mapper>
+	
+		  
+
+
+	
+	
+
+	
+	
+

@@ -1,0 +1,416 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+
+<%-- <jsp:include page="../layout/header.jsp">
+	<jsp:param value="블로그목록" name="title" />
+</jsp:include> --%>
+<style>
+	.blind {
+		display: none;
+	}
+</style>
+
+<script>
+	$(function(){
+		
+		/* // 게시글 수정화면으로 이동
+		$('#btn_anony_edit').click(function(event){
+			$('#frm_anony').attr('action', '${contextPath}/board/anony/edit');
+			$('#frm_anony').submit();
+		}); */
+		
+		/* 하단으로 이동
+		// 게시글 삭제
+		$('#btn_anony_remove').click(function(event){
+			if(confirm('해당 글을 삭제하시겠습니까? 데이터 삭제시 복구가 불가능합니다.')){
+				$('#frm_anony').attr('action', '${contextPath}/board/anony/remove');
+				$('#frm_anony').submit();
+			}
+		}); */
+		
+		/* 하단으로 이동 
+		// 게시글 목록
+		$('#btn_anony_list').click(function(event){
+			location.href = '${contextPath}/board/anonyList';
+		}); */
+		
+		
+	});
+		
+</script>
+</head>
+<body>
+
+	<div>
+		<h3>익명 게시글 정보</h3>
+		
+		<<%-- ul>
+			<li>제목 : ${ u.anonyTitle }</li>
+			<li>내용 : ${ u.anonyContent }</li>
+			<li>작성일 : ${ u.createDate }</li>
+			<li>수정일 : ${ u.uploadModifydate }</li>
+		</ul> --%>
+		
+		<div>
+			<span>작성자 ${ a.anonyEmpNo }</span>
+			&nbsp;&nbsp;&nbsp;
+			<span>작성일 <fmt:formatDate value="${ a.createDate }" pattern="yyyy. M. d HH:mm" /></span>
+		</div>
+		
+		<div>
+			${ a.anonyContent }
+		</div>
+		
+		
+		<div>
+			<form id="frm_anony" method="post">
+				<input type="hidden" name="anonyNo" value="${ a.anonyNo }">
+				<!-- <input type="button" value="게시글편집" id="btn_upload_edit"> 	 -->	
+				<c:if test="${ loginUser.userNo == a.anonyEmpNo }">	
+					<input type="button" value="삭제" id="btn_anony_remove"> 
+				</c:if>			
+				<!-- <input type="button" value="게시글목록" id="btn_anony_list"> 		 -->	
+				<input type="buton" value="목록" onclick="location.href='${contextPath}/board/anonyList'">
+			</form>
+			<script>
+				$('#btn_anony_remove').click(function(){
+					if(confirm('해당 글을 삭제하시겠습니까? 데이터 삭제시 복구가 불가능합니다.')){
+						$('#frm_anony').attr('action', '${contextPath}/board/anony/remove');
+						$('#frm_anony').submit();
+					}
+				});
+			</script>
+		</div>
+	
+		<hr>
+		
+		<span id="btn_comment_list">
+			댓글
+			<span id="comment_count"></span>개
+		</span>
+		
+		
+		<!-- 좋아요 기능
+		<a id="lnk_good">
+			<span id="heart"></span><span id="good">좋아요 </span><span id="good_count"></span>
+		</a> 
+		-->
+		
+		
+		<hr>
+		
+		<div id="comment_area" class="blind">
+			<div id="comment_list"></div>
+			<div id="paging"></div>
+		</div>
+		
+		<hr>
+		
+		<div>
+			<form id="frm_add_comment">
+				<div class="add_comment">
+					<div class="add_comment_input">
+						<input type="text" name="content" id="content" placeholder="댓글을 작성하려면 로그인 해 주세요">
+					</div>
+					<div class="add_comment_btn">
+						<c:if test="${ loginUser != null }">
+							<input type="button" value="작성완료" id="btn_add_comment">
+						</c:if>
+					</div>
+				</div>
+				<input type="hidden" name="anonyNo" value="${ a.anonyNo }">
+				<input type="hidden" name="userNo" value="${ loginUser.userNo }">
+			</form>
+		</div>
+		
+		<!-- 현재 페이지 번호를 저장하고 있는 hidden -->
+		<input type="hidden" id="page" value="1">
+		
+		<script>
+		
+			// 함수 호출
+			fn_commentCount();
+			fn_switchCommentList();
+			fn_addComment();
+			fn_commentList();
+			fn_changePage();
+			fn_removeComment();
+			fn_switchReplyArea();
+			fn_addReply();
+			
+			fn_goodCheck();
+			fn_goodCount();
+			fn_pressGood();
+			
+			// 함수 정의
+			function fn_commentCount(){
+				$.ajax({
+					type: 'get',
+					url: '${contextPath}/anonycomment/getCount',
+					data: 'anonyNo=${ a.anonyNo }',
+					dataType: 'json',
+					success: function(resData){  // resData = {"commentCount": 개수}
+						$('#comment_count').text(resData.commentCount);
+					}
+				});
+			}
+			
+			function fn_switchCommentList(){
+				$('#btn_comment_list').click(function(){
+					$('#comment_area').toggleClass('blind');
+				});
+			}
+			
+			function fn_addComment(){
+				$('#btn_add_comment').click(function(){
+					if($('#content').val() == ''){
+						alert('댓글 내용을 입력하세요');
+						return;
+					}
+					$.ajax({
+						type: 'post',
+						url: '${contextPath}/anonycomment/add',
+						data: $('#frm_add_comment').serialize(),
+						dataType: 'json',
+						success: function(resData){  // resData = {"isAdd", true}
+							if(resData.isAdd){
+								alert('댓글이 등록되었습니다.');
+								$('#content').val('');
+								fn_commentList();   // 댓글 목록 가져와서 뿌리는 함수
+								fn_commentCount();  // 댓글 목록 개수 갱신하는 함수
+							}
+						}
+					});
+				});
+			}
+			
+			function fn_commentList(){
+				$.ajax({
+					type: 'get',
+					url: '${contextPath}/anonycomment/list',
+					data: 'anonyNo=${ a.anonyNo }&page=' + $('#page').val(),
+					dataType: 'json',
+					success: function(resData){
+						/*
+							resData = {
+								"commentList": [
+									{댓글하나},
+									{댓글하나},
+									...
+								],
+								"pageUtil": {
+									page: x,
+									...
+								}
+							}
+						*/
+						// 화면에 댓글 목록 뿌리기
+						$('#comment_list').empty();
+						moment.locale('ko-KR');
+						$.each(resData.commentList, function(i, comment){
+							var div = '';
+							if(comment.state == -1) {
+								if(comment.depth == 0) {
+									div += '<div>삭제된 댓글입니다.</div>';
+								} else {
+									div += '<div style="margin-left: 40px;">삭제된 답글입니다.</div>';
+								}
+							} else {
+								if(comment.depth == 0) {
+									div += '<div>';
+								} else {
+									div += '<div style="margin-left:40px;">';
+								}
+								div += '  <span>' + comment.user.name + '</span>';
+								div += '  <span style="font-size:12px; color:silver;">' + moment(comment.createDate).format('YYYY년 MM월 DD일 A h:mm:ss') + '</span>';
+								div += '<div>' + comment.content + '</div>';
+								if('${loginUser.userNo}' != '') {
+									if('${loginUser.userNo}' == comment.user.userNo && comment.state == 1) {
+										div += '<input type="button" value="삭제" class="btn_comment_remove" data-comment_no="' + comment.commentNo + '">';
+									} else if('${loginUser.userNo}' != comment.user.userNo && comment.depth == 0) {
+										div += '<input type="button" value="답글" class="btn_reply_area">';
+									}
+								}
+								div += '</div>';
+							}
+							div += '<div style="margin-left: 40px;" class="reply_area blind">';
+							div += '<form class="frm_reply">';
+							div += '<input type="hidden" name="anonyNo" value="' + comment.anonyNo + '">';
+							div += '<input type="hidden" name="groupNo" value="' + comment.groupNo + '">';
+							div += '<input type="hidden" name="userNo" value="${loginUser.userNo}">';
+							div += '<input type="text" name="content" placeholder="답글을 작성하려면 로그인을 해주세요">';
+							if('${loginUser.userNo}' != '') {
+								div += '<input type="button" value="답글작성완료" class="btn_reply_add">';
+							}
+							div += '</form>';
+							div += '</div>';
+							$('#comment_list').append(div);
+							$('#comment_list').append('<div style="border-bottom: 1px dotted gray;"></div>');
+						});
+						// 페이징
+						$('#paging').empty();
+						var pageUtil = resData.pageUtil;
+						var paging = '<div>';
+						// 이전 블록
+						if(pageUtil.beginPage != 1) {
+							paging += '<span class="lnk_enable" data-page="' + (pageUtil.beginPage - 1) + '">◀</span>';
+						}
+						// 페이지번호
+						for(let p = pageUtil.beginPage; p <= pageUtil.endPage; p++) {
+							if(p == $('#page').val()){
+								paging += '<strong>' + p + '</strong>';
+							} else {
+								paging += '<span class="lnk_enable" data-page="'+ p +'">' + p + '</span>';
+							}
+						}
+						// 다음 블록
+						if(pageUtil.endPage != pageUtil.totalPage){
+							paging += '<span class="lnk_enable" data-page="'+ (pageUtil.endPage + 1) +'">▶</span>';
+						}
+						paging += '</div>';
+						// 페이징 표시
+						$('#paging').append(paging);
+					}
+				});
+			}  // fn_commentList
+			
+			function fn_changePage(){
+				$(document).on('click', '.lnk_enable', function(){
+					$('#page').val( $(this).data('page') );
+					fn_commentList();
+				});
+			}
+			
+			function fn_removeComment(){
+				$(document).on('click', '.btn_comment_remove', function(){
+					if(confirm('삭제된 댓글은 복구할 수 없습니다. 댓글을 삭제할까요?')){
+						$.ajax({
+							type: 'post',
+							url: '${contextPath}/anonycomment/remove',
+							data: 'commentNo=' + $(this).data('comment_no'),
+							dataType: 'json',
+							success: function(resData){  // resData = {"isRemove": true}
+								if(resData.isRemove){
+									alert('댓글이 삭제되었습니다.');
+									fn_commentList();
+									fn_commentCount();
+								}
+							}
+						});
+					}
+				});
+			}
+			
+			function fn_switchReplyArea(){
+				$(document).on('click', '.btn_reply_area', function(){
+					$(this).parent().next().toggleClass('blind');
+				});
+			}
+			
+			function fn_addReply(){
+				$(document).on('click', '.btn_reply_add', function(){
+					if($(this).prev().val() == ''){
+						alert('답글 내용을 입력하세요.');
+						return;
+					}
+					$.ajax({
+						type: 'post',
+						url: '${contextPath}/anonycomment/reply/add',
+						data: $(this).closest('.frm_reply').serialize(),  
+						dataType: 'json',
+						success: function(resData){  // resData = {"isAdd", true}
+							if(resData.isAdd){
+								alert('답글이 등록되었습니다.');
+								fn_commentList();
+								fn_commentCount();
+							}
+						}
+					});
+				});
+			}
+			
+			<%--  좋아요 기능
+			//////////////////////////////////////////////////
+			
+			// 내가 "좋아요"를 누른 게시글인가?(좋아요 테이블에 사용자와 게시글 정보가 있는지 확인, 눌렀으면 빨간하트, 안 눌렀으면 빈하트)
+			function fn_goodCheck() { 
+				$.ajax({
+					url: '${contextPath}/good/getGoodCheck',
+					type: 'get',
+					data: 'blogNo=${blog.blogNo}&userNo=${loginUser.userNo}',
+					dataType: 'json',
+					success: function(resData){
+						if (resData.count == 0) {
+							$('#heart').html('<img src="../resources/images/whiteheart.png" width="15px">');
+							$('#good').removeClass("good_checked");
+						} else {
+							$('#heart').html('<img src="../resources/images/redheart.png" width="15px">');
+							$('#good').addClass("good_checked");
+						}
+					}
+				});
+			}
+			
+			// "좋아요" 개수 표시하기
+			function fn_goodCount(){
+				$.ajax({
+					url: '${contextPath}/good/getGoodCount',
+					type: 'get',
+					data: 'blogNo=${blog.blogNo}',
+					dataType: 'json',
+					success: function(resData){
+						$('#good_count').empty();
+						$('#good_count').text(resData.count + '개');
+					}
+				});
+			}
+			
+			// "좋아요" 누른 경우
+			function fn_pressGood(){
+				$('#lnk_good').click(function(){
+					// 로그인을 해야 "좋아요"를 누를 수 있다.
+					if('${loginUser.userNo}' == ''){
+						alert('해당 기능은 로그인이 필요합니다.');
+						return;
+					}
+					// 셀프 좋아요 방지
+					if('${loginUser.userNo}' == '${blog.user.userNo}'){
+						alert('본인의 게시글에서는 "좋아요"를 누를 수 없습니다.');
+						return;
+					}
+					// "좋아요" 선택/해제 상태에 따른 하트 변경
+					$('#good').toggleClass("good_checked");
+					if ($('#good').hasClass("good_checked")) {
+						$('#heart').html('<img src="../resources/images/redheart.png" width="15px">');
+					} else {
+						$('#heart').html('<img src="../resources/images/whiteheart.png" width="15px">');
+					}
+					// "좋아요" 처리
+					$.ajax({
+						url: '${contextPath}/good/mark',
+						type: 'get',
+						data: 'blogNo=${blog.blogNo}&userNo=${loginUser.userNo}',
+							dataType: 'json',
+							success: function(resData){
+								if(resData.isSuccess) {
+									fn_goodCount();							
+								}
+							}
+						});
+					});
+				}
+				 --%>
+			</script>
+			
+	</div>
+
+	
+	
+	
+	
+	
+</body>
+</html>

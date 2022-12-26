@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.group.sharegram.board.mapper.NoticBoardMapper">
+
+	<select id="selectAllNoticListCount" resultType="int">
+		SELECT COUNT(*)
+		  FROM NOTIC
+	</select>
+	
+	<select id="selectNoticList" parameterType="Map" resultType="NoticBoardDTO">
+		SELECT N.RN, N.NOTIC_NO, N.EMP_NO, N.BOARD_TITLE, N.BOARD_CONTENT, N.CREATE_DATE, N.MODIFY_DATE, N.BOARD_TOP, N.HIT
+		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY NOTIC_NO DESC) AS RN, NOTIC_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, BOARD_TOP, HIT
+		          FROM NOTIC) N
+		 WHERE N.RN BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<insert id="insertNotic" parameterType="NoticBoardDTO">
+		INSERT INTO NOTIC
+			(NOTIC_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, BOARD_TOP, HIT)
+		VALUES
+   		    (NOTIC_SEQ.NEXTVAL, #{empNo}, #{boardTitle}, #{boardContent}, SYSDATE, SYSDATE, 'N', 0)
+	</insert>   
+	
+	<select id="selectNoticByNo" parameterType="int" resultType="NoticBoardDTO">
+		SELECT NOTIC_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT
+		  FROM NOTIC
+		 WHERE NOTIC_NO = #{noticNo}
+	</select>
+	
+	<update id="updateNotic" parameterType="NoticBoardDTO">
+		UPDATE NOTIC
+		   SET BOARD_TITLE = #{boardTitle}
+		     , BOARD_CONTENT = #{boardContent}
+		     , MODIFY_DATE = DATE
+		 WHERE NOTIC_NO = #{noticNo}
+	</update> 	
+	
+	<update id="deleteNotic" parameterType="int">	<!-- chk -->
+		UPDATE NOTIC
+		   SET STATE = 0
+		 WHERE NOTIC_NO = #{noticNo}
+	</update>
+	
+	<!-- 
+	<insert id="insertContent" parameterType="NoticBoardDTO">
+		INSERT INTO NOTIC
+			(NOTIC_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT)
+		VALUES
+			(NOTIC_SEQ.NEXTVAL, #{empNo}, #{boardTitle}, #{boardContent}, SYSDATE, SYSDATE, 0)
+	</insert> 
+	-->
+	
+	<update id="updateHit" parameterType="int">
+		UPDATE NOTIC
+		   SET HIT = HIT + 1
+		 WHERE NOTIC_NO = #{noticNo}
+	</update>
+	
+<!-- 자료실용	
+	<select id="selectSummernoteImageListInnoticBoard" parameterType="int" resultType="SummernoteImageDTO">
+		SELECT NOTIC_NO, FILESYSTEM
+		  FROM SUMMERNOTE_IMAGE
+		 WHERE NOTIC_NO = #{noticNo}	
+	</select>
+	
+	
+	<select id="selectAllSummernoteImageList" resultType="SummernoteImageDTO">
+		SELECT NOTIC_NO, FILESYSTEM
+		  FROM SUMMERNOTE_IMAGE
+	</select> 
+-->
+	
+	
+</mapper>

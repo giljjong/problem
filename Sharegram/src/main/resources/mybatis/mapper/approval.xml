@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="Approval">
+	<resultMap type="ApprovalDTO" id="resultApproval">
+		<id property="apNo" column="AP_NO" />
+		<result property="deptNo" column="DEPT_NO" />
+		<result property="empNo" column="EMP_NO" />
+		<result property="aptitle" column="APTITLE" />
+		<result property="apdate" column="APDATE" />
+		<result property="apcontent" column="APCONTENT" />
+		<result property="apperson" column="APPERSON" />
+		<result property="apstate" column="APSTATE" />
+		<result property="aprejection" column="APREJECTION" />
+		<result property="applace" column="APPLACE" />
+		<result property="apattenda" column="APATTENDA" />
+		<result property="apdec" column="APDEC" />
+		<result property="apetc" column="APETC" />
+		<result property="apformat" column="APFORMAT" />
+		<result property="apdrafter" column="APDRAFTER" />
+		<result property="apptitle" column="APPTITLE" />
+	</resultMap>
+
+	<!-- 기안 전체 개수 조회 -->
+	<select id="listCount" resultType="int">
+			<![CDATA[
+			SELECT count(*) FROM APPROVAL
+			]]>
+	</select>
+	<!-- 페이지당 기안 조회 -->
+	<select id="selectList" resultType="arraylist"
+		resultMap="resultApproval">
+		<![CDATA[
+		SELECT * FROM APPROVAL ORDER BY apdate DESC
+		]]>
+	</select>
+
+	<!-- 기안 작성 -->
+	<insert id="insertApproval" flushCache="true"
+		parameterType="string" statementType="PREPARED">
+<![CDATA[
+		insert into approval(apNo,deptNo,empNo,
+							apstate,apperson,apformat,
+							apdrafter,apdate,aptitle,apptitle,
+							applace,apattend,apcontent,
+							apdec,apetc)
+			values(apNo_SE.NEXTVAL,#{deptNo},1,
+			default,#{apperson},#{apformat},
+			#{apdrafter},sysdate,#{aptitle},
+			#{apptitle},#{applace},#{apattend},
+			#{apcontent},#{apdec},#{apetc})
+		]]>
+	</insert>
+	<!-- 결제완료 -->
+	<update id="updatestate" flushCache="true" parameterType="string"
+		statementType="PREPARED">
+			<![CDATA[
+			update approval set apstate = 1 where apNo = #{apNo}
+			]]>
+	</update>
+	<!-- 반려사유 -->
+	<update id="updateaprejection" flushCache="true" parameterType="string"
+		statementType="PREPARED">
+			<![CDATA[
+			update approval set aprejection = #{aprejection},apstate = 2 where apNo = #{apNo} 
+			]]>
+	</update>
+	<select id="selectOne" parameterType="string"
+		resultType="ApprovalDto">
+		<![CDATA[
+		select * from approval where apNo = #{apNo}
+		]]>
+	</select>
+
+
+</mapper>

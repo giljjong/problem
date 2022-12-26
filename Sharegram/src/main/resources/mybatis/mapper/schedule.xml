@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.group.sharegram.schedule.mapper.ScheduleMapper">
+	<select id="selectScheduleList" resultType="ScheduleDTO">
+		SELECT SCHEDULE_NO , SCHEDULE_TITLE , SCHEDULE_START , SCHEDULE_END , SCHEDULE_ALLDAY
+   	 		FROM SCHEDULE
+	</select>
+	
+	<insert id="insertSchedule" parameterType="ScheduleDTO" >
+		INSERT INTO 
+   			SCHEDULE
+        		(SCHEDULE_NO , EMP_NO , SCHEDULE_TITLE , SCHEDULE_START , SCHEDULE_END , SCHEDULE_ALLDAY )
+    		VALUES
+        		(SCH_SEQ.NEXTVAL , #{empNo} , #{scheduleTitle} , #{scheduleStart} , #{scheduleEnd} , #{scheduleAllday} )
+	</insert>
+	
+	<update id="updateSchedule" parameterType="ScheduleDTO">
+		UPDATE SCHEDULE
+		   SET SCHEDULE_TITLE = #{scheduleTitle}
+		     , SCHEDULE_START = #{scheduleStart}
+		     , SCHEDULE_END = #{scheduleEnd}
+		 WHERE EMP_NO = #{empNo} AND SCHEDULE_NO = #{scheduleNo}
+	</update>
+	
+	<delete id="deleteSchedule" parameterType="ScheduleDTO">
+		DELETE
+		  FROM SCHEDULE
+		WHERE EMP_NO = #{empNo} AND SCHEDULE_NO = #{scheduleNo}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.group.sharegram.schedule.mapper.AttendanceMapper">
+	
+	<resultMap type="DepartmentsDTO" id="DeptMap">
+		<id column="DEPT_NO" property="deptNo" />
+		<result column="DEPT_NAME" property="deptName" />
+	</resultMap>
+	
+	<resultMap type="PositionDTO" id="PosMap">
+		<id column="JOB_NO" property="jobNo" />
+		<result column="JOB_NAME" property="jobName" />
+	</resultMap>
+	
+	
+	<resultMap type="EmployeesDTO" id="EmpMap">
+		<id column="EMP_NO" property="empNo" />
+		<result column="NAME" property="name" />
+		<result column="JOIN_DATE" property="joinDate" />
+		<collection resultMap="DeptMap" property="departmentsDTO"></collection>
+		<collection resultMap="PosMap" property="positionDTO"></collection>
+	</resultMap>
+	
+	<resultMap type="AttendanceDTO" id="AttMap">
+		<id column="ATT_NO" property="attNo" />
+		<result column="ATT_START" property="attStart" />
+		<result column="ATT_END" property="attEnd" />
+		<result column="ATT_STATUS" property="attStatus" />
+		<result column="EARLY_CONTENT" property="earlyContent" />
+		<result column="EARLY_STATUS" property="earlyStatus" />
+		<collection resultMap="EmpMap" property="empDTO"></collection>
+	</resultMap>
+	
+	<select id="selectAttendaceCount" resultType="int">
+		SELECT COUNT(*)
+ 			FROM ATTENDANCE
+	</select>
+	
+	<select id="selectAttendanceListByMap" parameterType="map" resultMap="AttMap">
+		SELECT T.ROW_NUM, T.DEPT_NAME, T.JOB_NAME, T.EMP_NO, T.NAME, T.ATT_START, T.ATT_END, T.ATT_STATUS , T.ATT_NO , T.EARLY_STATUS , T.EARLY_CONTENT 
+		    FROM (SELECT ROW_NUMBER() OVER(ORDER BY E.EMP_NO DESC) AS ROW_NUM, D.DEPT_NAME, P.JOB_NAME, E.EMP_NO, E.NAME, A.ATT_START, A.ATT_END, A.ATT_STATUS , A.ATT_NO, A.EARLY_CONTENT , A.EARLY_STATUS
+		            FROM DEPARTMENTS D
+		            INNER JOIN EMPLOYEES E
+		                ON D.DEPT_NO = E.DEPT_NO
+		            INNER JOIN POSITION P
+		                ON P.JOB_NO = E.JOB_NO
+		            INNER JOIN ATTENDANCE A
+		                ON A.EMP_NO = E.EMP_NO) T
+		    WHERE T.ROW_NUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<select id="selectAttendanceListCheck"	>
+		SELECT ATT_NO , EMP_NO , ATT_START , ATT_END , ATT_DATE , ATT_DAY , ATT_STATUS 
+    		FROM ATTENDANCE
+	</select>		
+	
+	<select id="selectAttendanceCheck" parameterType ="AttendanceDTO" resultType="AttendanceDTO">
+		SELECT ATT_STATUS, ATT_START, ATT_END
+    		FROM ATTENDANCE   
+   			 WHERE EMP_NO = #{empNo} AND ATT_START LIKE #{attStart} || '%'
+	</select>
+	
+	
+	<insert id="insertAttendacne" parameterType="AttendanceDTO">
+		INSERT INTO ATTENDANCE
+				(ATT_NO , EMP_NO , ATT_START , ATT_STATUS)
+			VALUES
+				(ATT_SEQ.NEXTVAL, #{empNo}, #{attStart} , #{attStatus})
+	</insert>
+	
+	<update id="updateLeaveWork" parameterType="AttendanceDTO">
+		UPDATE ATTENDANCE
+    		SET ATT_END = #{attEnd},
+    			EARLY_CONTENT = #{earlyContent},
+    			EARLY_STATUS = #{earlyStatus}
+    		WHERE EMP_NO = #{empNo} AND ATT_START LIKE #{attStart} || '%'  
+	</update>
+	
+	<select id="selectAttendacneByNo" parameterType="int" resultMap="AttMap">
+		SELECT T.ROW_NUM, T.DEPT_NAME, T.JOB_NAME, T.EMP_NO, T.NAME, T.ATT_START, T.ATT_END, T.ATT_STATUS , T.ATT_NO , T.EARLY_CONTENT , T.EARLY_STATUS
+		    FROM (SELECT ROW_NUMBER() OVER(ORDER BY E.EMP_NO DESC) AS ROW_NUM, D.DEPT_NAME, P.JOB_NAME, E.EMP_NO, E.NAME, A.ATT_START, A.ATT_END, A.ATT_STATUS , A.ATT_NO , A.EARLY_CONTENT , A.EARLY_STATUS
+		            FROM DEPARTMENTS D
+		            INNER JOIN EMPLOYEES E
+		                ON D.DEPT_NO = E.DEPT_NO
+		            INNER JOIN POSITION P
+		                ON P.JOB_NO = E.JOB_NO
+		            INNER JOIN ATTENDANCE A
+		                ON A.EMP_NO = E.EMP_NO) T
+         WHERE ATT_NO = #{attNo}
+	</select> 
+	
+	<update id="updateAttendacne" parameterType="Map">
+		UPDATE ATTENDANCE
+		   SET ATT_START = #{attStart}
+		     , ATT_END = #{attEnd}
+		     , ATT_STATUS = #{attStatus}
+		 WHERE ATT_NO = #{attNo}
+	</update>
+	
+	<delete id="deleteAttendacneList" parameterType="List">
+		DELETE
+		  FROM ATTENDANCE
+		<where>
+			ATT_NO IN
+			<foreach collection="list" item="attNo" open="(" close=")" separator=",">
+				#{attNo}
+			</foreach>
+		</where>
+	</delete>
+	
+	
+		
+</mapper>
