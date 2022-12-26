@@ -1,17 +1,3 @@
 INDEX VERSION 1.131
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1919694007.index
-\mailPro\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2821227898.index
-\mailPro\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1869230838.index
-\mailPro\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1909459658.index
-\mailPro\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2114997248.index
-\Sharegram\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\939243022.index
-\Sharegram\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3928635605.index
-\Sharegram\src\main\java
-C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\877103219.index
-\Sharegram\src\main\java
+C:\problem\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2710217896.index
+\Sharegram2\src\main\java
