@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.group.sharegram.addr.domain.DepartmentsDTO" alias="DeptDTO" />
+		<typeAlias type="com.group.sharegram.addr.domain.EmployeesDTO" alias="EmpDTO" />
+		<typeAlias type="com.group.sharegram.addr.domain.PositionDTO" alias="PositionDTO" />
+		<typeAlias type="com.group.sharegram.addr.domain.EmpAddrDTO" alias="EmpAddrDTO" />
+		<typeAlias type="com.group.sharegram.mail.domain.MailDTO" alias="MailDTO" />
+		<typeAlias type="com.group.sharegram.mail.domain.ReceiversDTO" alias="ReceiversDTO" />
+		<typeAlias type="com.group.sharegram.mail.domain.SummernoteImageDTO" alias="SummernoteImageDTO" />
+		<typeAlias type="com.group.sharegram.mail.domain.MailAtchDTO" alias="MailAtchDTO" />
+		<typeAlias type="com.group.sharegram.addr.domain.AddrGroupDTO" alias="AddrGroupDTO" />
+		<typeAlias type="com.group.sharegram.addr.domain.PersonalAddrDTO" alias="PersonalAddrDTO" />
+	</typeAliases>
+</configuration>

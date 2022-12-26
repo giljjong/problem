@@ -38,6 +38,14 @@
 		 ORDER BY ADDR_GROUP_NO ASC
 	</select>
 	
+	<select id="selectImportantPersonalAddrCnt" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+		  FROM PERSONAL_ADDR P INNER JOIN ADDR_GROUP A
+            ON P.GROUP_NO = A.ADDR_GROUP_NO
+		 WHERE P.IMPORTANT_CHECK = 'Y'
+		   AND A.EMP_NO = #{empNo}
+	</select>
+	
 	<select id="selectImportantPersonalAddr" parameterType="map" resultType="PersonalAddrDTO">
 		SELECT C.RN, C.PERSONAL_NO, C.GROUP_NO, C.ADDR_NAME, C.ADDR_PHONE, C.COMPANY, C.EMAIL, C.FAX, C.MEMO, C.IMPORTANT_CHECK
   		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY B.PERSONAL_NO ASC) AS RN, B.PERSONAL_NO, B.GROUP_NO, B.ADDR_NAME, B.ADDR_PHONE, B.COMPANY, B.EMAIL, B.FAX, B.MEMO, B.IMPORTANT_CHECK
@@ -48,5 +56,12 @@
                    		   AND A.EMP_NO = #{empNo}) B) C
  		 WHERE C.RN BETWEEN #{begin} AND #{end}
 	</select>
+	
+	<insert id="insertPersonalAddr" parameterType="PersonalAddrDTO">
+		INSERT INTO PERSONAL_ADDR
+			(PERSONAL_NO, GROUP_NO, ADDR_NAME, ADDR_PHONE, COMPANY, EMAIL, FAX, MEMO, IMPORTANT_CHECK)
+		VALUES
+			(PERSONAL_ADDR_SEQ.NEXTVAL, #{groupNo}, #{addrName}, #{addrPhone}, #{company}, #{email}, #{fax}, #{memo}, 'N')
+	</insert>
 
 </mapper>

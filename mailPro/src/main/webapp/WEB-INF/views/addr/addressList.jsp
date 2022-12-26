@@ -47,7 +47,6 @@
             <div class="addMenu2_1">
             
                 <!-- 별표연락처 -->
-                <!-- 로그한 유저의 사번 넘기자 -->              
                 <div class="starAdd" onclick="selectStarAdd();">
                     <span class='starYellow'>★</span><span style="font-size: 16px;"><b>별표연락처</b></span>
                 </div>
@@ -66,7 +65,6 @@
                 </ul>
                             
             </div>
-            
             
             <!-- 내연락처 -->
             <div class="addMenu2_2">
@@ -178,7 +176,7 @@
                                             <th class="Addstar" colspan="2">
                                                 <input type="checkbox" name="addressStar"  value="Y" id="rate3">
                                                 <label for="rate3">★</label>      
-                                                <input type="hidden" name="employeeNo" value="${loginUser.empNo }">                            
+                                                <input type="hidden" name="empNo" value="${loginUser.empNo }">                            
                                             </th>                                    
                                         </tr>                             
                                     <tr>
@@ -186,21 +184,9 @@
                                             <td><input class="formInput"  type="text" id="addressName" name="addressName" required></td>                                       
                                     </tr>
                                     <tr>
-                                            <th>닉네임</th>  &nbsp;
-                                            <td><input class="formInput" type="text" name="addressNickName"></td>
-                                    </tr>
-                                    <tr>
                                             <th>회사</th> &nbsp;
                                             <td><input class="formInput" type="text" name="addressCompany" required></td>                                       
-                                    </tr>        
-                                    <tr>
-                                            <th>부서</th>  &nbsp;                                    
-                                            <td><input class="formInput" type="text" name="addressDepartment" required></td>                                        
-                                        </tr>    
-                                        <tr>
-                                            <th>직급</th>   &nbsp;                                   
-                                            <td><input class="formInput" type="text" name="addressPosition" required></td>
-                                        </tr>                            
+                                    </tr>                                   
                                         <tr>
                                             <th>이메일</th> &nbsp;
                                             <td><input class="formInput" type="email" name="addressEmail" required></td>
@@ -208,10 +194,6 @@
                                         <tr>
                                             <th>휴대전화</th> &nbsp;
                                             <td ><input class="formInput" type="text" name="addressTel" placeholder=" -도 함께 입력해주세요." maxlength="13"></td>
-                                        </tr>
-                                        <tr>
-                                            <th>사내번호</th> &nbsp;
-                                            <td><input class="formInput" type="text" name="addExtensionNo"></td>
                                         </tr>
                                         <tr>
                                             <th>FAX</th> &nbsp; 
@@ -273,21 +255,9 @@
                                             <td ><input class="formInput"  type="text" id="addressName" name="addressName"  required></td>                                                                             
                                     </tr>
                                     <tr>
-                                            <th>닉네임</th>  &nbsp;
-                                            <td><input class="formInput" type="text" name="addressNickName" id="addressNickName" ></td>
-                                    </tr>
-                                    <tr>
                                             <th>회사</th> &nbsp;
                                             <td><input class="formInput" type="text" name="addressCompany" id="addressCompany" required></td>                                       
-                                    </tr>        
-                                    <tr>
-                                            <th>부서</th>  &nbsp;                                    
-                                            <td><input class="formInput" type="text" name="addressDepartment" id="addressDepartment" required></td>                                        
-                                        </tr>    
-                                        <tr>
-                                            <th>직급</th>   &nbsp;                                   
-                                            <td><input class="formInput" type="text" name="addressPosition" id="addressPosition" required></td>
-                                        </tr>                            
+                                    </tr>                                     
                                         <tr>
                                             <th>이메일</th> &nbsp;
                                             <td><input class="formInput" type="email" name="addressEmail" id="addressEmail" required></td>
@@ -295,10 +265,6 @@
                                         <tr>
                                             <th>휴대전화</th> &nbsp;
                                             <td ><input class="formInput" type="text" name="addressTel" id="addressTel" placeholder=" -도 함께 입력해주세요." maxlength="13"></td>
-                                        </tr>
-                                        <tr>
-                                            <th>사내번호</th> &nbsp;
-                                            <td><input class="formInput" type="text" id="addExtensionNo" name="addExtensionNo"></td>
                                         </tr>
                                         <tr>
                                             <th>FAX</th> &nbsp; 
@@ -345,7 +311,7 @@
                            
                            <table align="center" id="addGpTb">
                                <tr>
-                               	   <input type="hidden" id="employeeNo" name="employeeNo" value="${loginUser.empNo }">
+                               	   <input type="hidden" id="empNo" name="empNo" value="${loginUser.empNo }">
                                    <td><input type="text" id="groupName" name="groupName" placeholder="그룹명을 입력해주세요" required></td>
                                    <td><button type="button" class="btn btn-sm btn-primary" onclick="ajaxAddGp();">등록</button></td>
                                    <td><button type="button" class="btn btn-sm btn-secondary" onclick='$("#addGp").modal("hide");'>취소</button></td>
@@ -391,72 +357,7 @@
                     </div>
                 </div>
             </div>
-           
-            <!-- 쪽지보내기 Modal -->
-            <div class="modal fade" id="addressChat" tabindex="-1" aria-labelledby="addressChatModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered ">
-                <div class="modal-content"> 
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addressChatModalLabel">쪽지보내기</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>               
-                    <div class="modal-body" align="center">                       
-                        <form action="" method="post">
-                            <input type="hidden" name="empSendNo" value="">
-                            <table>
-                                <tr>
-                                    <th>제목</th>
-                                    <th><input class="formInput" name="noteTitle" placeholder="제목을 입력해주세요" required></th>
-                                </tr>
-                                <tr>
-                                    <!--보이는건 받는사람 이름 / 넘기는건 hidden으로 no-->
-                                    <th>받는사람</th>
-                                    <td>
-                                        <input class="formInput" value="김나라" readonly>
-                                        <input id="empNo" type="hidden" name="empNo" value="">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>종류</th>
-                                    <th>
-                                        <select name="noteCategory" class="formInput">
-                                            <option>회의</option>
-                                            <option>업무</option>
-                                            <option>행사</option>
-                                            <option>기타</option>
-                                        </select>
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th>요청</th>
-                                    <th>
-                                        <select name="noteRequest" class="formInput">
-                                            <option>긴급</option>
-                                            <option>답장필요</option>
-                                            <option>답장불필요</option>
-                                        </select>
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th>내용</th>
-                                    <th><textarea maxlength="100" rows="8" cols="40" style="resize: none;" required class="formInput"></textarea></th>
-                                </tr>
-                            </table>
-                            <div align="center">
-                                <button type="submit" class="btn btn-sm btn-primary">보내기</button>
-                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">취소</button>
-                            </div>
-                        </form>
-                    </div>               
-                </div>
-                </div>
-            </div>
-            
-           
-
-        </div>
+         </div>
         
     </div>
     
@@ -1045,10 +946,7 @@
 	             				//console.log(addressNo);  // 얘는 왜 result.addressNo가 아닐까 => 이 함수를 호출할때 매개변수로 받았음
 	             				//console.log(result.addressNo);
 	             				el.find("#addressName").val(result.addressName);
-	             				el.find("#addressNickName").val(result.addressNickName);
 	             				el.find("#addressCompany").val(result.addressCompany);
-	             				el.find("#addressDepartment").val(result.addressDepartment);
-	             				el.find("#addressPosition").val(result.addressPosition);
 	             				el.find("#addressEmail").val(result.addressEmail);
 	             				el.find("#addressTel").val(result.addressTel);
 	             				el.find("#addExtensionNo").val(result.addExtensionNo);
@@ -1068,19 +966,17 @@
             	}            	     	
             	            	// 이거 하기. 매퍼까지는 만들어놓음 서비스단 구현
             	// 별표연락처 테이블 조회            	            	
-            	function selectStarAdd(cpage){
+            	function selectStarAdd(page){
             		$.ajax({
-            			url: "starList.ad",
+            			url: "${contextPath}/add/starList",
             			type: "post",
             			data: {
-            				empNo: ${loginUser.empNo},
-            				cpage:cpage
+            				page:page
             			},
             			success:function(resData){
-            				let list = resData.list;
-            				let pi = resData.pi;
-            				let value="";       					
-       						let pageValue = "";
+            				var starList = resData.starList;
+            				var value='';       					
+            				var paging = '';
        						
        						value += '<table class="table" id="dataStarAddTable">' 
        	                   		 	+ 	'<thead>'
@@ -1089,26 +985,25 @@
                                		+			'<th style="width: 10px;"></th>'		   
                                 	+			'<th>번호</th>'
                                 	+			'<th>이름</th>'
-    		   						+			'<th>그룹명</th>'	
+    		   						+			'<th>이메일</th>'	
                                 	+			'<th>회사</th>'
-                                	+			'<th>부서</th>'
-                                	+  			'<th>직위</th>'                
+                                	+  			'<th>팩스번호</th>'                
                                 	+			'<th>휴대전화</th>'       
                             		+		'</tr>'
                         			+	'</thead>'	
                 					+ 	'<tbody>';
                 					
-       						if(list.length == 0){
+       						if(starList.length == 0){
             					value += "<tr>"
             							+	"<td colspan='9'>등록된 연락처가 없습니다.</td>"            						
             							+"</tr>";
             				}else{
-            					for(let i=0; i<list.length; i++){
+            					$.each(starList, function(i, star){
             						value += 		'<tr>'
-                                        	+ 			'<td><input type="checkbox" name="chk" value="'+ list[i].addressNo +'"></td>'
+                                        	+ 			'<td><input type="checkbox" name="chk" value="'+ star.personalNo +'"></td>'
                                         	+			'<td>'
                                             +				'<span class="';
-                                    if(list[i].addressStar == 'Y'){
+                                    if(star.addressStar == 'Y'){
                                     		value +=  'starYellow';
                                     }else{
                                     	value += 'starWhite';
@@ -1116,46 +1011,48 @@
                                             
                                      value  +=                '">★</span>'                           
                                         	+			'</td>'
-                                        	+			'<td class="no">'+ list[i].addressNo +'</td>'
-                                        	+			'<td class="name">' + list[i].addressName + '</td>'
-                                        	+			'<td>'+ list[i].groupName +'</td>'
-                                        	+			'<td>'+ list[i].addressCompany +'</td>'
-                                        	+			'<td>'+ list[i].addressDepartment +'</td>'
-                                        	+			'<td>'+ list[i].addressPosition +'</td>';                                             
+                                        	+			'<td class="no">'+ star.personalNo +'</td>'
+                                        	+			'<td class="name">' + star.addrName + '</td>'
+                                        	+			'<td>'+ star.email +'</td>'
+                                        	+			'<td>'+ star.company +'</td>'
+                                        	+			'<td>'+ star.fax +'</td>';                        
                                         	
-                                        	if(list[i].addressTel != null){
-                                        		 value   +=   '<td>'+ list[i].addressTel +'</td>';
+                                        	if(star.addrPhone != null){
+                                        		 value   +=   '<td>'+ star.addrPhone +'</td>';
                                         	}else{
                                         		 value   +=  '<td>'+ '' +'</td>'; 
                                         	}                                        	
                                     value   +=  '</tr>'	;                                        	
-            					}
-            					
-            					 if(pi.currentPage != 1){
-                        			pageValue += "<button class='btn btn-sm btn-outline-primary' onclick='selectStarAdd("+ (pi.currentPage - 1) + ")'>&lt;</button>"	
-                        		}
-                        		
-                        		for(let p=pi.startPage; p<=pi.endPage; p++) { 
-                				   
-                		   			if(p == pi.currentPage) { 
-                				   			pageValue += "<button class='btn btn-sm btn-outline-primary' disabled>"  + p  + "</button>"
-                				   	}else {
-                				   			pageValue += "<button class='btn btn-sm btn-outline-primary' onclick='selectStarAdd("+ p +")'>" + p + "</button>"
-                		           	} 
-                		         }     
-                         
-                		         if(pi.currentPage != pi.maxPage) {
-                		        	  pageValue +=	"<button class='btn btn-sm btn-outline-primary' onclick='selectAddTbList("  + (pi.currentPage + 1) + ")'>&gt;</button>"
-                		         }  
+            					});
+                		         
+                		         $('.pasingAdd').empty();
+                					var pageUtil = resData.pageUtil;
+                					var paging = '';
+                					// 이전 블록
+                					if(pageUtil.beginPage != 1) {
+                						paging += '<span class="enable_link" data-page="'+ (pageUtil.beginPage - 1) +'">◀</span>';
+                					}
+                					// 페이지번호
+                					for(let p = pageUtil.beginPage; p <= pageUtil.endPage; p++) {
+                						if(p == $('#page').val()){
+                							paging += '<strong>' + p + '</strong>';
+                						} else {
+                							paging += '<span class="enable_link" data-page="'+ p +'">' + p + '</span>';
+                						}
+                					}
+                					// 다음 블록
+                					if(pageUtil.endPage != pageUtil.totalPage){
+                						paging += '<span class="enable_link" data-page="'+ (pageUtil.endPage + 1) +'">▶</span>';
+                					}
+                					$('#paging').append(paging);
+                		         
             				}
             				
             				value   +=	'</tbody>'
                         			+ '</table>';
                         
-                        
-                        
                     $("#tableArea").html(value);
-       			    $(".pasingAdd").html(pageValue); 
+       			    $(".pasingAdd").html(paging);
        			 	$("#deleteFeat").attr("style", "visibility:visible"); 
        			    $("#cbx_chkAll").attr("style", "visibility:visible");
        				$("#addTitle").html("<h4><b>별표연락처</b></h4>");        				     	

@@ -17,5 +17,7 @@ public interface AddressMapper {
 	public int insertUnspecifiedGroup(int empNo);
 	public List<DepartmentsDTO> selectDeptList();
 	public List<AddrGroupDTO> selectMyAddrGroupList(int empNo);
+	public int selectImportantPersonalAddrCnt(int empNo);
 	public List<PersonalAddrDTO> selectImportantPersonalAddr(Map<String, Object> map);
+	public int insertPersonalAddr(PersonalAddrDTO addr);
 }

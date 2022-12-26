@@ -7,4 +7,5 @@ import javax.servlet.http.HttpServletRequest;
 public interface AddressService {
 	public Map<String, Object> getDeptList();
 	public Map<String, Object> getMyGroupList(HttpServletRequest request);
+	public Map<String, Object> getStarList(HttpServletRequest request);
 }

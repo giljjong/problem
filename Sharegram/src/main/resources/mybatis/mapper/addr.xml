@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.group.sharegram.mapper.AddressMapper">
+	
+	<select id="selectEmpAddrByNo" parameterType="int" resultType="EmpAddrDTO">
+		SELECT EMP_ADDR_NO, EMP_NO, DEPT_NO, JOB_NO, NAME, PASSWORD, PHONE, EMAIL, FAX
+		  FROM EMP_ADDR
+		 WHERE EMP_NO = #{empNo}
+	</select>
+	
+	<insert id="insertEmpAddr" parameterType="EmpAddrDTO">
+		INSERT INTO EMP_ADDR
+			(EMP_ADDR_NO, EMP_NO, DEPT_NO, JOB_NO, NAME, PASSWORD, PHONE, EMAIL, FAX)
+		VALUES
+			(EMP_ADDR_SEQ.NEXTVAL, #{empNo}, DEPT_SEQ.CURRVAL, POSITION_SEQ.CURRVAL, #{name}, #{password}, NULL, #{email}, NULL)
+	</insert>
+	
+	<insert id="insertUnspecifiedGroup" parameterType="int">
+		INSERT INTO ADDR_GROUP
+			(ADDR_GROUP_NO, EMP_NO, ADDR_GROUP_NAME)
+		VALUES
+			(ADDR_GROUP_SEQ.NEXTVAL, #{empNo}, '그룹미지정')
+	</insert>
+	
+	<select id="selectDeptList" resultType="DeptDTO">
+		SELECT DEPT_NO, DEPT_NAME
+		  FROM DEPARTMENTS
+	</select>
+	
+	<select id="selectMyAddrGroupList" resultType="AddrGroupDTO" parameterType="int">
+		SELECT ADDR_GROUP_NO, EMP_NO, ADDR_GROUP_NAME
+		  FROM ADDR_GROUP
+		 WHERE EMP_NO = #{empNo}
+		 ORDER BY ADDR_GROUP_NO ASC
+	</select>
+	
+	<select id="selectImportantPersonalAddrCnt" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+		  FROM PERSONAL_ADDR P INNER JOIN ADDR_GROUP A
+            ON P.GROUP_NO = A.ADDR_GROUP_NO
+		 WHERE P.IMPORTANT_CHECK = 'Y'
+		   AND A.EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectImportantPersonalAddr" parameterType="map" resultType="PersonalAddrDTO">
+		SELECT C.RN, C.PERSONAL_NO, C.GROUP_NO, C.ADDR_NAME, C.ADDR_PHONE, C.COMPANY, C.EMAIL, C.FAX, C.MEMO, C.IMPORTANT_CHECK
+  		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY B.PERSONAL_NO ASC) AS RN, B.PERSONAL_NO, B.GROUP_NO, B.ADDR_NAME, B.ADDR_PHONE, B.COMPANY, B.EMAIL, B.FAX, B.MEMO, B.IMPORTANT_CHECK
+          		  FROM (SELECT P.PERSONAL_NO, P.GROUP_NO, P.ADDR_NAME, P.ADDR_PHONE, P.COMPANY, P.EMAIL, P.FAX, P.MEMO, P.IMPORTANT_CHECK
+                  		  FROM PERSONAL_ADDR P INNER JOIN ADDR_GROUP A
+                    		ON P.GROUP_NO = A.ADDR_GROUP_NO
+                 		 WHERE P.IMPORTANT_CHECK = 'Y'
+                   		   AND A.EMP_NO = #{empNo}) B) C
+ 		 WHERE C.RN BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<insert id="insertPersonalAddr" parameterType="PersonalAddrDTO">
+		INSERT INTO PERSONAL_ADDR
+			(PERSONAL_NO, GROUP_NO, ADDR_NAME, ADDR_PHONE, COMPANY, EMAIL, FAX, MEMO, IMPORTANT_CHECK)
+		VALUES
+			(PERSONAL_ADDR_SEQ.NEXTVAL, #{groupNo}, #{addrName}, #{addrPhone}, #{company}, #{email}, #{fax}, #{memo}, 'N')
+	</insert>
+	
+	<select id="selectEmpAddrByDeptNoCnt" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+          FROM EMP_ADDR E INNER JOIN DEPARTMENTS D
+            ON E.DEPT_NO = D.DEPT_NO
+         WHERE D.DEPT_NO = #{deptNo}
+	</select>
+	
+	<select id="selectEmpAddrListByDeptNo" parameterType="map" resultType="EmpAddrDTO">
+		SELECT B.RN, B.EMP_NO, B.DEPT_NO, B.DEPT_NAME, B.JOB_NO, B.JOB_NAME, B.NAME, B.PHONE, B.EMAIL, B.FAX
+  		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.JOB_NO ASC) AS RN, A.EMP_NO, A.DEPT_NO, A.DEPT_NAME, A.JOB_NO, A.JOB_NAME, A.NAME, A.PHONE, A.EMAIL, A.FAX
+          		  FROM (SELECT E.EMP_ADDR_NO, E.EMP_NO, E.DEPT_NO, D.DEPT_NAME, E.JOB_NO, P.JOB_NAME, E.NAME, E.PHONE, E.EMAIL, E.FAX
+                  		  FROM EMP_ADDR E INNER JOIN DEPARTMENTS D
+                    		ON E.DEPT_NO = D.DEPT_NO
+                    	 INNER JOIN POSITION P
+                    		ON E.JOB_NO = P.JOB_NO
+                 		 WHERE D.DEPT_NO = #{deptNo}) A) B
+ 		 WHERE B.RN BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<select id="selectEmpAddrByEmpNo" parameterType="int" resultType="EmpAddrDTO">
+		SELECT E.EMP_ADDR_NO, E.EMP_NO, E.DEPT_NO, D.DEPT_NAME, E.JOB_NO, P.JOB_NAME, E.NAME, E.PHONE, E.EMAIL, E.FAX, M.JOIN_DATE
+          FROM EMP_ADDR E INNER JOIN DEPARTMENTS D
+            ON E.DEPT_NO = D.DEPT_NO
+         INNER JOIN POSITION P
+            ON E.JOB_NO = P.JOB_NO
+         INNER JOIN EMPLOYEES M
+            ON E.EMP_NO = M.EMP_NO
+         WHERE E.EMP_NO = #{empNo}
+	</select>
+	
+	<insert id="insertAddrGroup" parameterType="AddrGroupDTO">
+		INSERT INTO ADDR_GROUP
+			(ADDR_GROUP_NO, EMP_NO, ADDR_GROUP_NAME)
+		VALUES
+			(ADDR_GROUP_SEQ.NEXTVAL, #{empNo}, #{addrGroupName})
+	</insert>
+
+</mapper>

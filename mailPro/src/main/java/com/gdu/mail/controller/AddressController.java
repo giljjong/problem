@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdu.mail.service.AddressService;
@@ -32,6 +33,12 @@ public class AddressController {
 	@GetMapping("/add/myGroup/List")
 	public Map<String, Object> getMyGroupList(HttpServletRequest request) {
 		return addressService.getDeptList();
+	}
+	
+	@ResponseBody
+	@PostMapping("/add/starList")
+	public Map<String, Object> getStarListPerPage(HttpServletRequest request) {
+		return addressService.getStarList(request);
 	}
 	
 }
