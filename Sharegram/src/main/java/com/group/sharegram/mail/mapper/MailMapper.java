@@ -9,6 +9,7 @@ import com.group.sharegram.addr.domain.EmpAddrDTO;
 import com.group.sharegram.mail.domain.MailAtchDTO;
 import com.group.sharegram.mail.domain.MailDTO;
 import com.group.sharegram.mail.domain.ReceiversDTO;
+import com.group.sharegram.user.domain.EmployeesDTO;
 import com.group.sharegram.mail.domain.MailSummerImageDTO;
 
 @Mapper
@@ -38,4 +39,5 @@ public interface MailMapper {
 	public int insertMailAttachByFileNo(MailAtchDTO attach);
 	public int deleteReceiver(Map<String, Object> map);
 	public MailAtchDTO selectMailAttachByFileNo(int fileNo);
+	public List<EmployeesDTO> selectAllEmpList();
 }

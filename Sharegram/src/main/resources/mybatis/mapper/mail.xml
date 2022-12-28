@@ -231,5 +231,10 @@
 		   AND MAIL_NO = #{mailNo}
 		   AND RECEIVE_TYPE = #{receiveType}
 	</delete>
+	
+	<select id="selectAllEmpList" resultType="EmployeesDTO">
+		SELECT EMP_NO, EMP_PW, NAME, BIRTHYEAR, BIRTHDAY, JOIN_DATE, INFO_MODIFY_DATE, STATUS, SALARY, JOB_NO, JOB_NO, PHONE
+		  FROM EMPLOYEES
+	</select>
 
 </mapper>

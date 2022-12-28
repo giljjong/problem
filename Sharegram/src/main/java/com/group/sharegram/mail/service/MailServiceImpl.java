@@ -42,6 +42,7 @@ import com.group.sharegram.mail.mapper.MailMapper;
 import com.group.sharegram.mail.util.MailIUtil;
 import com.group.sharegram.mail.util.MyFileMailUtil;
 import com.group.sharegram.mail.util.MailPageUtil;
+import com.group.sharegram.user.domain.EmployeesDTO;
 import com.group.sharegram.user.mapper.EmpMapper;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -198,22 +199,29 @@ public class MailServiceImpl implements MailService {
     		int receiveEmp = 0;
     		
     		for(int i = 0; i < toAddrs.length; i++) {
-    			receiveEmp = Integer.parseInt(toAddrs[i].substring(0, toAddrs[i].indexOf("@")));
-    			map.put("empNo", receiveEmp);
-    			map.put("mailNo", mail.getMailNo());
+    			String mailReceiver = toAddrs[i].substring(0, toAddrs[i].indexOf("@"));
     			
-    			System.out.println("=====================");
-    			System.out.println(mail.getMailNo());
-    			System.out.println("=====================");
+    			int cnt = 0;
     			
-    			if(empMapper.selectEmpByMap(map) != null) {
-    				map.put("receiveType", "To");
-    				map.put("mailNo", mail.getMailNo());
-    				mailMapper.insertReceivers(map);
+    			List<EmployeesDTO> empList = mailMapper.selectAllEmpList();
+    			for(EmployeesDTO emp : empList) {
+    				if(mailReceiver.equals(emp.getName())) {
+    					cnt += 1;
+    				}
     			}
-    			receiveEmp = 0;
-    			map.clear();
-
+    			if(cnt > 0) {
+    				receiveEmp = Integer.parseInt(mailReceiver);
+    				map.put("empNo", receiveEmp);
+    				map.put("mailNo", mail.getMailNo());
+    				
+    				if(empMapper.selectEmpByMap(map) != null) {
+    					map.put("receiveType", "To");
+    					map.put("mailNo", mail.getMailNo());
+    					mailMapper.insertReceivers(map);
+    				}
+    				receiveEmp = 0;
+    				map.clear();
+    			}
             }
     		
     		if(toCcs != null) {
@@ -300,8 +308,12 @@ public class MailServiceImpl implements MailService {
 		for (MailDTO mailInfo : mailList) {
 			
 			if((receiveType.equals("trash") && mailInfo.getReceiveType().equals("send")) || receiveType.equals("send")){
-				int[] to = mailMapper.selectReceiveEmp(mailInfo.getMailNo());
-				mailInfo.setEmpNo(to[0]);
+				
+					int[] to = mailMapper.selectReceiveEmp(mailInfo.getMailNo());
+					
+					if(to.length > 0) {
+						mailInfo.setEmpNo(to[0]);
+					}
 			}
 			
 			EmpAddrDTO addr = addrMapper.selectEmpAddrByNo(mailInfo.getEmpNo());
@@ -309,7 +321,6 @@ public class MailServiceImpl implements MailService {
 			if(addr.getName() != null) {
 				mailInfo.setEmpName(addr.getName());
 			}
-			
 			
 			Date sendDate = mailInfo.getSendDate();
 			SimpleDateFormat dateFormat;
@@ -352,8 +363,6 @@ public class MailServiceImpl implements MailService {
 		map.put("deleteCheck", receivData.getDeleteCheck());
 		
 		String readCheck = null;
-
-		System.out.println(receivData.getReceiveType() + "왜 이거지????");
 		
 		if(receivData.getReceiveType().equals("send")) {
 			readCheck = mailMapper.selectSendReceiverByMap(map).getReadCheck();

@@ -27,7 +27,6 @@
     <fullyQualifiedTypeName name="org.apache.ibatis.type.MappedJdbcTypes"/>
     <fullyQualifiedTypeName name="org.apache.ibatis.annotations.Mapper"/>
     <fullyQualifiedTypeName name="com.gdu.mail.mapper.AddressMapper"/>
-    <fullyQualifiedTypeName name="java.util.HashMap"/>
     <fullyQualifiedTypeName name="com.gdu.mail.domain.DepartmentsDTO"/>
     <fullyQualifiedTypeName name="com.gdu.mail.domain.EmpAddrDTO"/>
     <fullyQualifiedTypeName name="com.gdu.mail.domain.EmployeesDTO"/>
@@ -42,7 +41,6 @@
     <fullyQualifiedTypeName name="com.group.sharegram.mail.util.MailPageUtil"/>
     <fullyQualifiedTypeName name="org.springframework.transaction.annotation.Transactional"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.ResponseBody"/>
-    <fullyQualifiedTypeName name="java.util.Map"/>
     <fullyQualifiedTypeName name="com.group.sharegram.mail.domain.ReceiversDTO"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PostMapping"/>
     <fullyQualifiedTypeName name="javax.servlet.http.HttpSession"/>
@@ -58,6 +56,8 @@
     <fullyQualifiedTypeName name="javax.servlet.http.HttpServletRequest"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.GetMapping"/>
     <fullyQualifiedTypeName name="com.group.sharegram.addr.domain.AddrGroupDTO"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="com.group.sharegram.mail.domain.MailAtchDTO"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="java.util.HashMap"/>
 </qualifiedTypeNameHistroy>
