@@ -19,9 +19,16 @@ public interface AddressMapper {
 	public List<AddrGroupDTO> selectMyAddrGroupList(int empNo);
 	public int selectImportantPersonalAddrCnt(int empNo);
 	public List<PersonalAddrDTO> selectImportantPersonalAddr(Map<String, Object> map);
-	public int insertPersonalAddr(PersonalAddrDTO addr);
 	public int selectEmpAddrByDeptNoCnt(int deptNo);
 	public List<EmpAddrDTO> selectEmpAddrListByDeptNo(Map<String, Object> map);
 	public EmpAddrDTO selectEmpAddrByEmpNo(int empNo);
 	public int insertAddrGroup(AddrGroupDTO group);
+	public int insertPersonalAddr(PersonalAddrDTO pAddr);
+	public List<PersonalAddrDTO> selectPersonalAddrListInGroup(Map<String, Object> map);
+	public int selectPersonalAddrListInGroupCnt(int groupNo);
+	public int deletePersonalAddr(int personalNo);
+	public PersonalAddrDTO selectPersonalAddr(int personalNo);
+	public int updateImportantFromPersonalAddr(PersonalAddrDTO person);
+	public int updateAddrGroupName(AddrGroupDTO group);
+	public int deleteAddrGroup(int addrGroupNo);
 }

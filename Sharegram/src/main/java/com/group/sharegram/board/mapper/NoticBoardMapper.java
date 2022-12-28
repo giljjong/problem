@@ -23,6 +23,7 @@ public interface NoticBoardMapper {
 	
 	 
 	public int updateHit(int noticNo);
+	public int updateNoticTop(Map<String, Object> map);
 	
 	
 	/* 자료실용

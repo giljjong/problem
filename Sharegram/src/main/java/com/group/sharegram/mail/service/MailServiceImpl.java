@@ -74,6 +74,8 @@ public class MailServiceImpl implements MailService {
 		int empNo = mailUser.getEmpNo();
 		mail.setEmpNo(empNo);
 		
+		System.out.println(mail.getStrTo());
+		
 		mail.setToAddr(mail.getStrTo().split(";"));
 		
     	if (!mail.getStrCc().equals("")) mail.setCcAddr(mail.getStrCc().split(";"));
@@ -90,10 +92,15 @@ public class MailServiceImpl implements MailService {
     		List<MailAtchDTO> atch = new ArrayList<>();
     		String[] fileNos = multipartRequest.getParameterValues("fileNo");
     		
+    		System.out.println("========================================1111");
+    		System.out.println(mail.getMailNo());
+    		System.out.println("========================================");
     		
     		if(fileNos !=  null) {
     			for(int i = 0; i < fileNos.length; i++) {
-    				mailMapper.insertMailAttachByFileNo(Integer.parseInt(fileNos[i]));
+    				MailAtchDTO mailAtach = mailMapper.selectMailAttachByFileNo(Integer.parseInt(fileNos[i]));
+    				mailAtach.setMailNo(mail.getMailNo());
+    				mailMapper.insertMailAttachByFileNo(mailAtach);
     			}
     		}
     		
@@ -106,6 +113,7 @@ public class MailServiceImpl implements MailService {
     					if(summernoteImageNames !=  null) {
     						for(String filesystem : summernoteImageNames) {
     							MailSummerImageDTO summernoteImage = MailSummerImageDTO.builder()
+    									.mailNo(mail.getMailNo())
     									.filesystem(filesystem)
     									.build();
     							mailMapper.insertMailSummerImage(summernoteImage);
@@ -148,6 +156,7 @@ public class MailServiceImpl implements MailService {
 	
 	    					// AttachDTO 생성
 	    					MailAtchDTO attach = MailAtchDTO.builder()
+	    							.mailNo(mail.getMailNo())
 	    							.originName(originName)
 	    							.changeName(changeName)
 	    							.mailPath(mailPath)
@@ -191,9 +200,15 @@ public class MailServiceImpl implements MailService {
     		for(int i = 0; i < toAddrs.length; i++) {
     			receiveEmp = Integer.parseInt(toAddrs[i].substring(0, toAddrs[i].indexOf("@")));
     			map.put("empNo", receiveEmp);
+    			map.put("mailNo", mail.getMailNo());
+    			
+    			System.out.println("=====================");
+    			System.out.println(mail.getMailNo());
+    			System.out.println("=====================");
     			
     			if(empMapper.selectEmpByMap(map) != null) {
     				map.put("receiveType", "To");
+    				map.put("mailNo", mail.getMailNo());
     				mailMapper.insertReceivers(map);
     			}
     			receiveEmp = 0;
@@ -205,6 +220,11 @@ public class MailServiceImpl implements MailService {
     			for(int i = 0; i < toCcs.length; i++) {
         			receiveEmp = Integer.parseInt(toCcs[i].substring(0, toCcs[i].indexOf("@")));
         			map.put("empNo", receiveEmp);
+        			map.put("mailNo", mail.getMailNo());
+        			
+        			System.out.println("=====================");
+        			System.out.println(mail.getMailNo());
+        			System.out.println("=====================");
         			
         			if(empMapper.selectEmpByMap(map) != null) {
         				map.put("receiveType", "cc");
@@ -218,6 +238,7 @@ public class MailServiceImpl implements MailService {
     		
     		map.put("empNo", empNo);
     		map.put("receiveType", "send");
+    		map.put("mailNo", mail.getMailNo());
     		mailMapper.insertReceivers(map);
     		
     		String password = ((EmpAddrDTO)multipartRequest.getSession().getAttribute("mailUser")).getPassword();	// 수정
@@ -266,8 +287,8 @@ public class MailServiceImpl implements MailService {
 		}
 		
 		pageUtil.setPageUtil(page, totalRecord, recordPerPage);
-		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("begin", pageUtil.getBegin() - 1);
+		map.put("recordPerPage", pageUtil.getRecordPerPage());
 		
 		List<MailDTO> mailList = mailMapper.selectReceiveMailList(map);
 		int nReadCnt = mailMapper.selectReadNotReceiveCount(map);
@@ -331,6 +352,8 @@ public class MailServiceImpl implements MailService {
 		map.put("deleteCheck", receivData.getDeleteCheck());
 		
 		String readCheck = null;
+
+		System.out.println(receivData.getReceiveType() + "왜 이거지????");
 		
 		if(receivData.getReceiveType().equals("send")) {
 			readCheck = mailMapper.selectSendReceiverByMap(map).getReadCheck();

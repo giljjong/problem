@@ -54,8 +54,8 @@ public class UploadCommentServiceImpl implements UploadCommentService {
 		
 		Map<String, Object> map= new HashMap<String, Object>();
 		map.put("anonyNo", anonyNo);
-		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("begin", pageUtil.getBegin() - 1);
+		map.put("recordPerPage", pageUtil.getRecordPerPage());
 		
 		Map<String, Object> result= new HashMap<String, Object>();
 		result.put("commentList", uploadCommentMapper.selectCommentList(map));

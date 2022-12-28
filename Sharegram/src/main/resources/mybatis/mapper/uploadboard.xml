@@ -4,7 +4,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.group.sharegram.board.mapper.UploadBoardMapper">
+<mapper namespace="com.group.sharegram.mapper.UploadBoardMapper">
 
 	 <select id="selectAllUploadListCount" resultType="int">
 		SELECT COUNT(*)
@@ -12,24 +12,23 @@
 	</select>
 	
 	<select id="selectUploadList" parameterType="Map" resultType="UploadBoardDTO">
-		SELECT U.RN, U.UPLOAD_NO, U.EMP_NO, U.BOARD_TITLE, U.BOARD_CONTENT, U.CREATE_DATE, U.MODIFY_DATE, U.HIT
-		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY UPLOAD_NO DESC) AS RN, UPLOAD_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT
-		          FROM UPLOAD) U
-		 WHERE U.RN BETWEEN #{begin} AND #{end}
+		SELECT UPLOAD_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT
+		  FROM UPLOAD
+		 LIMIT #{begin}, #{recordPerPage}
 	</select>
 	
-	<insert id="insertUpload" parameterType="UploadBoardDTO">
+	<insert id="insertUpload" parameterType="UploadBoardDTO" useGeneratedKeys="true" keyProperty="uploadNo">
 		INSERT INTO UPLOAD
-			(UPLOAD_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT)
+			(EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT)
 		VALUES
-   		    (UPLOAD_SEQ.NEXTVAL, #{empNo}, #{boardTitle}, #{boardContent}, SYSDATE, SYSDATE, 0)
+   		    (#{empNo}, #{boardTitle}, #{boardContent}, NOW(), NOW(), 0)
 	</insert>   	
 	
-	<insert id="insertAttach" parameterType="AttachDTO">
+	<insert id="insertAttach" parameterType="AttachDTO" useGeneratedKeys="true" keyProperty="attachNo">
 		INSERT INTO ATTACH
-			(ATTACH_NO, UPLOAD_NO, EMP_NO, PATH, ORIGIN, FILESYSTEM)
+			(UPLOAD_NO, EMP_NO, PATH, ORIGIN, FILESYSTEM)
 		VALUES
-			(ATTACH_SEQ.NEXTVAL, #{uploadNo}, #{empNo}, #{path}, #{origin}, #{filesystem})
+			(#{uploadNo}, #{empNo}, #{path}, #{origin}, #{filesystem})
 	</insert>  
 	
 	
@@ -65,7 +64,7 @@
 		UPDATE UPLOAD
 		   SET BOARD_TITLE = #{boardTitle}
 		     , BOARD_CONTENT = #{boardContent}
-		     , MODIFY_DATE = DATE
+		     , MODIFY_DATE = NOW()
 		 WHERE UPLOAD_NO = #{uploadNo}
 	</update> 
 
@@ -84,7 +83,7 @@
 	<select id="selectAttachListInYesterday" resultType="AttachDTO">
 		SELECT ATTACH_NO, UPLOAD_NO, EMP_NO, PATH, ORIGIN, FILESYSTEM
 		  FROM ATTACH
-		 WHERE PATH = CONCAT('stoarge\\',TO_CHAR(SYSDATE -1, 'yyyy\\mm\\dd'))
+		 WHERE PATH = CONCAT('stoarge\\', DATE_FORMAT(SYSDATE() -1, '%Y\\%m\\%d'))
 	</select>
 	
 	<update id="updateHit" parameterType="int">

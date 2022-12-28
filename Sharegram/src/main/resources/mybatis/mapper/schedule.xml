@@ -10,12 +10,12 @@
    	 		FROM SCHEDULE
 	</select>
 	
-	<insert id="insertSchedule" parameterType="ScheduleDTO" >
+	<insert id="insertSchedule" parameterType="ScheduleDTO" useGeneratedKeys="false" keyProperty="scheduleNo">
 		INSERT INTO 
    			SCHEDULE
-        		(SCHEDULE_NO , EMP_NO , SCHEDULE_TITLE , SCHEDULE_START , SCHEDULE_END , SCHEDULE_ALLDAY )
+        		(EMP_NO , SCHEDULE_TITLE , SCHEDULE_START , SCHEDULE_END , SCHEDULE_ALLDAY )
     		VALUES
-        		(SCH_SEQ.NEXTVAL , #{empNo} , #{scheduleTitle} , #{scheduleStart} , #{scheduleEnd} , #{scheduleAllday} )
+        		(#{empNo} , #{scheduleTitle} , #{scheduleStart} , #{scheduleEnd} , #{scheduleAllday} )
 	</insert>
 	
 	<update id="updateSchedule" parameterType="ScheduleDTO">

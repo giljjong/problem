@@ -24,51 +24,39 @@
 	<!-- 기안 전체 개수 조회 -->
 	<select id="listCount" resultType="int">
 			<![CDATA[
-			SELECT count(*) FROM APPROVAL
+			SELECT COUNT(*) FROM APPROVAL
 			]]>
 	</select>
 	<!-- 페이지당 기안 조회 -->
-	<select id="selectList" resultType="arraylist"
-		resultMap="resultApproval">
+	<select id="selectList" resultType="arraylist" resultMap="resultApproval">
 		<![CDATA[
-		SELECT * FROM APPROVAL ORDER BY apdate DESC
+		SELECT * FROM APPROVAL ORDER BY APDATE DESC
 		]]>
 	</select>
 
 	<!-- 기안 작성 -->
 	<insert id="insertApproval" flushCache="true"
-		parameterType="string" statementType="PREPARED">
+		parameterType="String" statementType="PREPARED" useGeneratedKeys="true" keyProperty="apNo">
 <![CDATA[
-		insert into approval(apNo,deptNo,empNo,
-							apstate,apperson,apformat,
-							apdrafter,apdate,aptitle,apptitle,
-							applace,apattend,apcontent,
-							apdec,apetc)
-			values(apNo_SE.NEXTVAL,#{deptNo},1,
-			default,#{apperson},#{apformat},
-			#{apdrafter},sysdate,#{aptitle},
-			#{apptitle},#{applace},#{apattend},
-			#{apcontent},#{apdec},#{apetc})
+		INSERT INTO APPROVAL(DEPT_NO, EMP_NO, APSTATE, APPERSON, APFORMAT, APDRAFTER, APDATE, APTITLE, APPTITLE, APPLACE, APATTEND, APCONTENT, APDEC, APETC)
+			VALUES(#{deptNo}, 1, default, #{apperson}, #{apformat}, #{apdrafter}, NOW(), #{aptitle}, #{apptitle}, #{applace}, #{apattend}, #{apcontent}, #{apdec},#{apetc})
 		]]>
 	</insert>
 	<!-- 결제완료 -->
-	<update id="updatestate" flushCache="true" parameterType="string"
-		statementType="PREPARED">
+	<update id="updatestate" flushCache="true" parameterType="string" statementType="PREPARED">
 			<![CDATA[
-			update approval set apstate = 1 where apNo = #{apNo}
+			UPDATE APPROVAL SET APSTATE = 1 WHERE AP_NO = #{apNo}
 			]]>
 	</update>
 	<!-- 반려사유 -->
-	<update id="updateaprejection" flushCache="true" parameterType="string"
-		statementType="PREPARED">
+	<update id="updateaprejection" flushCache="true" parameterType="string" statementType="PREPARED">
 			<![CDATA[
-			update approval set aprejection = #{aprejection},apstate = 2 where apNo = #{apNo} 
+			UPDATE APPROVAL SET APREJECTION = #{aprejection}, APSTATE = 2 WHERE AP_NO = #{apNo} 
 			]]>
 	</update>
-	<select id="selectOne" parameterType="string"
-		resultType="ApprovalDto">
+	<select id="selectOne" parameterType="String" resultType="ApprovalDto">
 		<![CDATA[
-		select * from approval where apNo = #{apNo}
+		SELECT * FROM APPROVAL WHERE AP_NO = #{apNo}
 		]]>
 	</select>
 

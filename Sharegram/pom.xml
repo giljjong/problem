@@ -15,6 +15,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>8.0.31</version>
+		</dependency>
 	
 		<!-- 정종길 추가 시작==== -->
 		<!-- https://mvnrepository.com/artifact/org.json/json -->

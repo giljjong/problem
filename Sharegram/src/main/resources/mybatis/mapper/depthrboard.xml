@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.group.sharegram.mapper.DeptHrBoardMapper">
+
+	<select id="selectAllDeptHrListCount" resultType="int">
+		SELECT COUNT(*)
+		  FROM BOARD
+	</select>
+	
+	<select id="selectDeptHrList" parameterType="Map" resultType="DeptHrBoardDTO">
+		SELECT BOARD_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT, DEPT_NO
+		  FROM BOARD
+		 LIMIT #{begin}, #{recordPerPage}
+	</select>
+	
+	<insert id="insertDeptHr" parameterType="DeptHrBoardDTO" useGeneratedKeys="true" keyProperty="BOARD_NO">
+		INSERT INTO BOARD
+			(EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT, DEPT_NO)
+		VALUES
+   		    (#{empNo}, #{boardTitle}, #{boardContent}, NOW(), NOW(), 0, #{deptNo})
+	</insert>   
+	
+	<select id="selectBoardByNo" parameterType="int" resultType="DeptHrBoardDTO">
+		SELECT BOARD_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT, DEPT_NO
+		  FROM BOARD
+		 WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	<update id="updateDeptHr" parameterType="DeptHrBoardDTO">
+		UPDATE BOARD
+		   SET BOARD_TITLE = #{boardTitle}
+		     , BOARD_CONTENT = #{boardContent}
+		     , MODIFY_DATE = NOW()
+		 WHERE BOARD_NO = #{boardNo}
+	</update> 	
+	
+	<update id="deleteNotic" parameterType="int">	<!-- chk -->
+		UPDATE BOARD
+		   SET STATE = 0
+		 WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+	<!-- 
+	<insert id="insertContent" parameterType="NoticBoardDTO">
+		INSERT INTO NOTIC
+			(NOTIC_NO, EMP_NO, BOARD_TITLE, BOARD_CONTENT, CREATE_DATE, MODIFY_DATE, HIT)
+		VALUES
+			(NOTIC_SEQ.NEXTVAL, #{empNo}, #{boardTitle}, #{boardContent}, SYSDATE, SYSDATE, 0)
+	</insert> 
+	-->
+	
+	<update id="updateHit" parameterType="int">
+		UPDATE BOARD
+		   SET HIT = HIT + 1
+		 WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+<!-- 자료실용	
+	<select id="selectSummernoteImageListInnoticBoard" parameterType="int" resultType="SummernoteImageDTO">
+		SELECT NOTIC_NO, FILESYSTEM
+		  FROM SUMMERNOTE_IMAGE
+		 WHERE NOTIC_NO = #{noticNo}	
+	</select>
+	
+	
+	<select id="selectAllSummernoteImageList" resultType="SummernoteImageDTO">
+		SELECT NOTIC_NO, FILESYSTEM
+		  FROM SUMMERNOTE_IMAGE
+	</select> 
+-->
+	
+	
+</mapper>

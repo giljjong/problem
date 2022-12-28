@@ -8,15 +8,15 @@
 		<jsp:param value="받은메일함" name="title" />
 	</jsp:include>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="${contextPath}/resources/css/mailCss/mailbox.css" rel="stylesheet" type="text/css">
+
 <style>
 	.mail_toolbar {
 		display : flex;
 	}
 	.btn_group, .smart_toolbar {
 		display : flex;
-	}
-	.blind {
-		display : none;
 	}
 	.readChg, .detail_text {
 		cursor : pointer;
@@ -55,13 +55,13 @@
 				$.each(resData.mailList, function(i, mail){
 				var tr = $('<tr>');
 				tr
-				.append($('<td>').html('<input type="checkbox" class="check_one lbl_one" name="mailNo" value="'+ mail.mailNo + '">'))
-				.append($('<td>').html('<i class="fa-regular fa-star"></i>'))
-				.append($('<td>').html('<input type="hidden" id="readCheck" class="blind" value="' + mail.readCheck +'">'))
-				.append($('<td>').html($('<span class="readChg">').html(mail.readCheck == 'N' ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-regular fa-envelope-open"></i>')))
-				.append(mail.empName == null ? $('<td>').html(mail.sender) : $('<td>').html(mail.empName))
-				.append($('<td>').html(mail.readCheck == 'N' ? '<a class="detail_text"><strong>' + mail.subject + '</strong></a>' : '<a class="detail_text">' + mail.subject + '</a>'))
-				.append($('<td>').html(mail.receiveDate))
+				.append($('<td class="check_tr">').html('<input type="checkbox" class="check_one lbl_one" name="mailNo" value="'+ mail.mailNo + '">'))
+				.append($('<td class="important_tr">').html('<i class="fa-regular fa-star"></i>'))
+				.append($('<td class="blind">').html('<input type="hidden" id="readCheck" class="blind" value="' + mail.readCheck +'">'))
+				.append($('<td class="read_tr">').html($('<span class="readChg">').html(mail.readCheck == 'N' ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-regular fa-envelope-open"></i>')))
+				.append(mail.empName == null ? $('<td class="name_tr">').html(mail.sender) : $('<td>').html(mail.empName))
+				.append($('<td class="subject_tr">').html(mail.readCheck == 'N' ? '<a class="detail_text"><strong>' + mail.subject + '</strong></a>' : '<a class="detail_text">' + mail.subject + '</a>'))
+				.append($('<td class="date_tr">').html(mail.receiveDate))
 				.appendTo($('#mailBody'))
 				
 				});
@@ -214,14 +214,13 @@
 </script>
 </head>
 <body>
-	<div>
-		<div>
+	<div class="mail_body_wrap" style="padding-left:65px;">
+		<div class="mail_body">
 			<ul class="smart_toolbar">
 				<li><a href="${contextPath}/mail/folder/list">받은메일함</a></li>
 				<li><a href="${contextPath}/mail/folder/send">보낸메일함</a></li>
 				<li><a href="${contextPath}/mail/folder/trash">휴지통</a></li>
 				<li><a href="${contextPath}/mail/write">메일쓰기</a></li>
-				<li><a href="${contextPath}/addr/addressList">주소록</a></li>
 			</ul>
 		</div>
 		
@@ -230,7 +229,8 @@
 		<div>
 			<div>
 				<div class="cnt_info">
-					<span class="info_text">전체메일</span> <span class="cnt_mail"></span>
+					<span class="title_text">받은메일함</span>
+					<span class="cnt_text">전체메일</span> <span class="cnt_mail cnt_text"></span>
 				</div>
 				<div class="mail_toolbar">
 					<div class="btn_group">
@@ -251,7 +251,10 @@
 					</div>
 				</div>
 			</div>
-			<div>
+			
+			<hr>
+			
+			<div class="body_div">
 				<table>
 					<tbody id="mailBody">
 					</tbody>
@@ -269,4 +272,5 @@
 		</div>
 	</div>
 	
-	<%@ include file="../layout/footer.jsp" %>
+</body>
+</html>

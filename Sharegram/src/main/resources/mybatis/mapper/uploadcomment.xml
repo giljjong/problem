@@ -4,7 +4,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.group.sharegram.board.mapper.UploadCommentMapper">
+<mapper namespace="com.group.sharegram.mapper.UploadCommentMapper">
 
 	<select id="selectCommentCount" parameterType="int" resultType="int">
 		SELECT COUNT(*)
@@ -13,19 +13,18 @@
 	</select>
 	
 	
-	<insert id="insertComment" parameterType="UploadCommentDTO">
+	<insert id="insertComment" parameterType="UploadCommentDTO" useGeneratedKeys="true" keyProperty="uploadNo">
 		INSERT INTO COMMENTS
-			(CMT_NO,BOARD_NO, EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH, GROUP_NO)
+			(EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH, GROUP_NO)
 		VALUES
-			(COMMENTS_SEQ.NEXTVAL, #{boardNo}, #{empNo}, SYSDATE ,#{cmtContent}, 1, 0, COMMENTS_SEQ.CURRVAL)	
+			(#{boardNo}, #{empNo}, SYSDATE ,#{cmtContent}, 1, 0, COMMENTS_SEQ.CURRVAL)	
 	</insert>
 	
 	<select id="selectCommentList" parameterType="Map" resultType="UploadCommentDTO">
-		SELECT C.ROW_NUM, C.CMT_NO, C.BOARD_NO, C.EMP_NO, C.CREATE_DATE, C.CMT_CONTENT, C.STATE, C.DEPTH, C.GROUP_NO
-		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, DEPTH ASC, CREATE_DATE DESC) AS ROW_NUM, CMT_NO, BOARD_NO, EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH,GROUP_NO
-				  FROM COMMENTS
-			     WHERE BOARD_NO= #{boardNo}) C
-		 WHERE c.ROW_NUM BETWEEN #{begin} AND #{end}	     
+		SELECT CMT_NO, BOARD_NO, EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH,GROUP_NO
+		  FROM COMMENTS
+		 WHERE BOARD_NO= #{boardNo}
+		 LIMIT #{begin}, #{recordPerPage}	     
 	</select>
 	
 	<update id="deleteComment" parameterType="int">
@@ -34,11 +33,11 @@
 		 WHERE CMT_NO = #{cmtNo}
 	</update>
 	
-	<insert id="insertReply" parameterType="UploadCommentDTO">
+	<insert id="insertReply" parameterType="UploadCommentDTO" useGeneratedKeys="true" keyProperty="cmtNo">
 		INSERT INTO COMMENTS
-			(CMT_NO, BOARD_NO, EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH,GROUP_NO)
+			(BOARD_NO, EMP_NO, CREATE_DATE,CMT_CONTENT, STATE,DEPTH,GROUP_NO)
 		VALUES
-			(COMMENTS_SEQ.NEXTVAL, #{boardNo}, #{empNo}, SYSDATE ,#{cmtContent}, 1, 1, #{groupNo})
+			(#{boardNo}, #{empNo}, SYSDATE ,#{cmtContent}, 1, 1, #{groupNo})
 	</insert>
 	
 </mapper>

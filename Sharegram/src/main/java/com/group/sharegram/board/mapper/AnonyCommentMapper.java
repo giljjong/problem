@@ -14,4 +14,5 @@ public interface AnonyCommentMapper {
 	public List<AnonyCommentDTO> selectCommentList(Map<String, Object> map);
 	public int deleteComment(int commentNo);
 	public int insertReply(AnonyCommentDTO reply);
+	public int updateGroupNo(AnonyCommentDTO comment);
 }

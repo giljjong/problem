@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.group.sharegram.addr.domain.AddrGroupDTO;
 import com.group.sharegram.mail.domain.MailAtchDTO;
 import com.group.sharegram.mail.domain.MailDTO;
 import com.group.sharegram.mail.domain.ReceiversDTO;

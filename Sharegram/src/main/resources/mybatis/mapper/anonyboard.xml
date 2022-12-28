@@ -12,17 +12,16 @@
 	</select>
 	
 	<select id="selectAnonyList" parameterType="Map" resultType="AnonyBoardDTO">
-		SELECT A.RN, A.ANONY_NO, A.ANONY_TITLE, A.ANONY_CONTENT, A.CREATE_DATE, A.EMP_NO
-		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY ANONY_NO DESC) AS RN, ANONY_NO, ANONY_TITLE, ANONY_CONTENT, CREATE_DATE, EMP_NO
-		          FROM ANONY) A
-		 WHERE A.RN BETWEEN #{begin} AND #{end}
+		SELECT ANONY_NO, ANONY_TITLE, ANONY_CONTENT, CREATE_DATE, EMP_NO
+		  FROM ANONY
+         LIMIT #{begin}, #{recordPerPage};
 	</select>
 	
-	<insert id="insertAnony" parameterType="AnonyBoardDTO">
+	<insert id="insertAnony" parameterType="AnonyBoardDTO" useGeneratedKeys="true" keyProperty="ANONY_NO">
 		INSERT INTO ANONY
-			(ANONY_NO, ANONY_TITLE, ANONY_CONTENT, CREATE_DATE, EMP_NO)
+			(ANONY_TITLE, ANONY_CONTENT, CREATE_DATE, EMP_NO)
 		VALUES
-   		    (Anony_SEQ.NEXTVAL, #{anonyTitle}, #{anonyContent}, SYSDATE, #{empNo})
+   		    (#{anonyTitle}, #{anonyContent}, SYSDATE, #{empNo})
 	</insert>   	
 	
 	<select id="selectBoardByNo" parameterType="int" resultType="AnonyBoardDTO">

@@ -55,8 +55,8 @@ public class NoticBoardServiceImpl implements NoticBoardService {
 		
 		// DB로 보낼 Map(begin + end)
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("begin", pageUtil.getBegin() - 1);
+		map.put("recordPerPage", pageUtil.getRecordPerPage());
 		
 		// DB에서 목록 가져오기
 		List<NoticBoardDTO> noticBoardList = noticBoardMapper.selectNoticList(map);

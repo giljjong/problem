@@ -46,17 +46,20 @@
 	</select>
 	
 	<insert id="insertMail" parameterType="MailDTO">
+		<selectKey resultType="int" keyProperty="mailNo" order="BEFORE">
+			SELECT IFNULL(MAX(MAIL_NO) + 1, 1)  FROM MAIL
+		</selectKey>
 		INSERT INTO MAIL
 			(MAIL_NO, EMP_NO, SENDER, SUBJECT, MAIL_CONTENT, SEND_DATE, SEND_STATUS, TAG_NO)
 		VALUES
-			(MAIL_SEQ.NEXTVAL, #{empNo}, #{from}, #{subject}, #{mailContent}, SYSDATE, NULL, 0)
+			(#{mailNo}, #{empNo}, #{from}, #{subject}, #{mailContent}, NOW(), NULL, 0)
 	</insert>
 	
 	<insert id="insertReceivers" parameterType="map">
 		INSERT INTO RECEIVERS
 			(REC_EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE)
 		VALUES
-			(#{empNo}, MAIL_SEQ.CURRVAL, 'N', 'N', #{receiveType})
+			(#{empNo}, #{mailNo}, 'N', 'N', #{receiveType})
 	</insert>
 	
 	<select id="selectReceiveMailCount" parameterType="map" resultType="int">
@@ -72,17 +75,16 @@
 	</select>
 	
 	<select id="selectReceiveMailList" parameterType="map" resultMap="MailMap">
-		SELECT B.MAIL_NO, B.EMP_NO, B.SENDER, B.SUBJECT, B.MAIL_CONTENT, B.SEND_DATE, B.SEND_STATUS, B.TAG_NO, B.READ_CHECK, B.DELETE_CHECK, B.RECEIVE_TYPE
-  		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.SEND_DATE DESC) AS RN, A.MAIL_NO, A.EMP_NO, A.SENDER, A.SUBJECT, A.MAIL_CONTENT, A.SEND_DATE, A.SEND_STATUS, A.TAG_NO, A.READ_CHECK, A.DELETE_CHECK, A.RECEIVE_TYPE
-          		  FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK, R.REC_EMP_NO, R.RECEIVE_TYPE
-                  		  FROM MAIL M INNER JOIN RECEIVERS R
-                    		ON M.MAIL_NO = R.MAIL_NO
-                 		 WHERE R.RECEIVE_TYPE = 'To'
-                   		    OR R.RECEIVE_TYPE = 'cc'
-                   		    <if test="trash=='true'">OR R.RECEIVE_TYPE = 'send'</if>) A
-                 WHERE A.DELETE_CHECK = #{deleteCheck}
-                   AND A.REC_EMP_NO = #{empNo}) B
- 		 WHERE B.RN BETWEEN #{begin} AND #{end}
+		SELECT A.MAIL_NO, A.EMP_NO, A.SENDER, A.SUBJECT, A.MAIL_CONTENT, A.SEND_DATE, A.SEND_STATUS, A.TAG_NO, A.READ_CHECK, A.DELETE_CHECK, A.RECEIVE_TYPE
+          FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK, R.REC_EMP_NO, R.RECEIVE_TYPE
+                  FROM MAIL M INNER JOIN RECEIVERS R
+                    ON M.MAIL_NO = R.MAIL_NO
+                 WHERE R.RECEIVE_TYPE = 'To'
+                   	OR R.RECEIVE_TYPE = 'cc'
+                <if test="trash=='true'">OR R.RECEIVE_TYPE = 'send'</if>) A
+         WHERE A.DELETE_CHECK = #{deleteCheck}
+           AND A.REC_EMP_NO = #{empNo}
+		 LIMIT #{begin}, #{recordPerPage}
 	</select>
 	
 	<select id="selectSendMailCount" parameterType="map" resultType="int">
@@ -95,15 +97,13 @@
 	</select>
 	
 	<select id="selectSendMailList" parameterType="map" resultMap="MailMap">
-		SELECT B.MAIL_NO, B.EMP_NO, B.SENDER, B.SUBJECT, B.MAIL_CONTENT, B.SEND_DATE, B.SEND_STATUS, B.TAG_NO, B.READ_CHECK, B.DELETE_CHECK
-  		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY A.SEND_DATE DESC) AS RN, A.MAIL_NO, A.EMP_NO, A.SENDER, A.SUBJECT, A.MAIL_CONTENT, A.SEND_DATE, A.SEND_STATUS, A.TAG_NO, A.READ_CHECK, A.DELETE_CHECK
-          		  FROM (SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
-                  		  FROM MAIL M INNER JOIN RECEIVERS R
-                    		ON M.MAIL_NO = R.MAIL_NO
-                 		 WHERE R.DELETE_CHECK = #{deleteCheck}
-                   		   AND R.REC_EMP_NO = #{empNo}
-                   		   AND R.RECEIVE_TYPE = 'send') A ) B
- 		 WHERE B.RN BETWEEN #{begin} AND #{end}
+		SELECT M.MAIL_NO, M.EMP_NO, M.SENDER, M.SUBJECT, M.MAIL_CONTENT, M.SEND_DATE, M.SEND_STATUS, M.TAG_NO, R.READ_CHECK, R.DELETE_CHECK
+          FROM MAIL M INNER JOIN RECEIVERS R
+            ON M.MAIL_NO = R.MAIL_NO
+         WHERE R.DELETE_CHECK = #{deleteCheck}
+           AND R.REC_EMP_NO = #{empNo}
+           AND R.RECEIVE_TYPE = 'send'
+		 LIMIT #{begin}, #{recordPerPage}
 	</select>
 	
 	<select id="selectReadNotReceiveCount" parameterType="map" resultType="int">
@@ -126,12 +126,13 @@
 	</select>
 	
 	<select id="selectReceiverByMap" parameterType="map" resultMap="ReceiversMap">
-		SELECT REC_EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
-		  FROM RECEIVERS
- 		 WHERE MAIL_NO = #{mailNo}
- 		   AND REC_EMP_NO = #{empNo}
- 		   AND RECEIVE_TYPE = 'To'
- 		    OR RECEIVE_TYPE = 'cc'
+		SELECT A.REC_EMP_NO, A.MAIL_NO, A.READ_CHECK, A.DELETE_CHECK, A.RECEIVE_TYPE
+		  FROM (SELECT REC_EMP_NO, MAIL_NO, READ_CHECK, DELETE_CHECK, RECEIVE_TYPE
+		  		  FROM RECEIVERS
+ 		 		WHERE RECEIVE_TYPE = 'To'
+		   		   OR RECEIVE_TYPE = 'cc') A
+ 		 WHERE A.MAIL_NO = #{mailNo}
+   		   AND A.REC_EMP_NO = #{empNo}
 	</select>
 	
 	<select id="selectSendReceiverByMap" parameterType="map" resultMap="ReceiversMap">
@@ -170,7 +171,7 @@
 		INSERT INTO MAIL_SUMMER_IMAGE
 			(MAIL_NO, FILESYSTEM)
 		VALUES
-			(MAIL_SEQ.CURRVAL, #{filesystem})
+			(#{mailNo}, #{filesystem})
 	</insert>
 	
 	<select id="selectMailSummernoteImageListInMail" parameterType="int" resultType="MailSummerImageDTO">
@@ -190,11 +191,11 @@
 		 WHERE FILESYSTEM = #{filesystem}
 	</delete>
 	
-	<insert id="insertMailAttach" parameterType="MailAtchDTO">
+	<insert id="insertMailAttach" parameterType="MailAtchDTO" useGeneratedKeys="true" keyProperty="fileNo">
 		INSERT INTO MAIL_ATCH
-			(FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL)
+			(MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL)
 		VALUES
-			(MAIL_ATT_SEQ.NEXTVAL, MAIL_SEQ.CURRVAL, #{originName}, #{changeName}, #{mailPath}, SYSDATE, #{hasThumbnail})
+			(#{mailNo}, #{originName}, #{changeName}, #{mailPath}, SYSDATE, #{hasThumbnail})
 	</insert>
 	
 	<insert id="insertMailAttachByFileNo" parameterType="int">
@@ -209,6 +210,12 @@
 		SELECT FILE_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL
 		  FROM MAIL_ATCH
 		 WHERE MAIL_NO = #{mailNo}
+	</select>
+	
+	<select id="selectMailAttachByFileNo" parameterType="int" resultType="MailAtchDTO">
+		SELECT ORIGIN_NAME, CHANGE_NAME, MAIL_PATH, UPLOAD_DATE, HAS_THUMBNAIL
+		  FROM MAIL_ATCH
+		 WHERE FILE_NO = #{fileNo}
 	</select>
 	
 	<select id="selectMailAttachByNo" parameterType="int" resultType="MailAtchDTO">

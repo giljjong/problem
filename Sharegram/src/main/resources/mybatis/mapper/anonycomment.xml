@@ -27,20 +27,25 @@
 		 WHERE ANONY_NO = #{anonyNo}
 	</select>
 	
-	<insert id="insertComment" parameterType="AnonyCommentDTO">
+	<insert id="insertComment" parameterType="AnonyCommentDTO" useGeneratedKeys="true" keyProperty="commentNo">
 		INSERT INTO COMMENTS
-			(COMMENT_NO, ANONY_NO, CREATE_DATE, CONTENT, STATE, DEPTH, GROUP_NO, EMP_NO)
+			(ANONY_NO, CREATE_DATE, CONTENT, STATE, DEPTH, GROUP_NO, EMP_NO)
 		VALUES
-			(COMMENTS_SEQ.NEXTVAL, #{anonyNo}, SYSDATE, #{content}, 1, 0, COMMENTS_SEQ.CURRVAL,  #{user.empNo})
+			(#{anonyNo}, NOW(), #{content}, 1, 0, 0,  #{user.empNo})
 	</insert>
 	
+	<update id="updateGroupNo" parameterType="AnonyCommentDTO">
+		UPDATE COMMENTS
+		   SET GROUP_NO = #{commentNo}
+		 WHERE COMMENT_NO = #{commentNo}
+	</update>
+	
 	<select id="selectCommentList" parameterType="Map" resultMap="AnonyCommentMap">
-		SELECT C.ROW_NUM, C.COMMENT_NO, C.ANONY_NO, C.CREATE_DATE, C.CONTENT, C.STATE, C.DEPTH, C.GROUP_NO, C.EMP_NO
-		  FROM (SELECT ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC, DEPTH ASC, CREATE_DATE DESC) AS ROW_NUM, C.COMMENT_NO, C.ANONY_NO, C.CREATE_DATE, C.CONTENT, C.STATE, C.DEPTH, C.GROUP_NO, C.EMP_NO
-		          FROM EMPLOYEES E INNER JOIN COMMENTS C
-		            ON E.EMP_NO = C.EMP_NO
-		         WHERE ANONY_NO = #{anoyNo}) C
-		 WHERE C.ROW_NUM BETWEEN #{begin} AND #{end}
+		SELECT C.COMMENT_NO, C.ANONY_NO, C.CREATE_DATE, C.CONTENT, C.STATE, C.DEPTH, C.GROUP_NO, C.EMP_NO
+		  FROM EMPLOYEES E INNER JOIN COMMENTS C
+		    ON E.EMP_NO = C.EMP_NO
+		 WHERE ANONY_NO = #{anoyNo}
+         LIMIT #{begin}, #{recordPerPage}
 	</select>
 	
 	<update id="deleteComment" parameterType="int">
@@ -49,11 +54,11 @@
 		 WHERE COMMENT_NO = #{commentNo}
 	</update>
 	
-	<insert id="insertReply" parameterType="AnonyCommentDTO">
+	<insert id="insertReply" parameterType="AnonyCommentDTO" useGeneratedKeys="true" keyProperty="commentNo">
 		INSERT INTO COMMENTS
-			(COMMENT_NO, ANONY_NO, CREATE_DATE, CONTENT, STATE, DEPTH, GROUP_NO, EMP_NO)
+			(ANONY_NO, CREATE_DATE, CONTENT, STATE, DEPTH, GROUP_NO, EMP_NO)
 		VALUES
-			(COMMENTS_SEQ.NEXTVAL, #{anonyNo}, SYSDATE, #{content}, 1, 0, COMMENTS_SEQ.CURRVAL,  #{user.empNo})
+			(#{anonyNo}, NOW(), #{content}, 1, 0, #{groupNo},  #{user.empNo})
 	</insert>
 	
 	

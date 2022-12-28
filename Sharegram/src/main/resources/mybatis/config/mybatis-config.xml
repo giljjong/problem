@@ -37,6 +37,8 @@
 	      <typeAlias type="com.group.sharegram.board.domain.SummernoteImageDTO" alias="SummernoteImageDTO" />
 	      <typeAlias type="com.group.sharegram.board.domain.UploadBoardDTO" alias="UploadBoardDTO" />
 	      <typeAlias type="com.group.sharegram.board.domain.UploadCommentDTO" alias="UploadCommentDTO" />
+	      <typeAlias type="com.group.sharegram.board.domain.DeptHrBoardDTO" alias="DeptHrBoardDTO" />
+	      <typeAlias type="com.group.sharegram.board.domain.DeptHrCommentDTO" alias="DeptHrCommentDTO" />
       	
 		
 

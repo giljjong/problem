@@ -16,9 +16,6 @@
     <title>${param.title}</title>
 
     <script src="${contextPath}/resources/js/jquery-3.6.1.min.js"></script>
-	<script src="${contextPath}/resources/js/moment-with-locales.js"></script>
-	<script src="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.js"></script>
-	<script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
 
     <!-- Custom fonts for this template-->
     <link href="${contextPath}/resources/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -32,8 +29,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 </head>
 
@@ -46,12 +41,11 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="${contextPath}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">Sharegram</div>
-                <c:out value="${title}"/>
             </a>
 
             <!-- Divider -->
@@ -144,10 +138,21 @@
             </li>
             
             <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/mail/list">
-                  <i class="fa-regular fa-envelope"></i>
-                    <span>메일</span></a>
+             <li class="nav-item">
+                <a class="nav-link collapsed" href="${contextPath}/mail/list" data-toggle="collapse" data-target="#collapsePages"
+                    aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>메일</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">메일관리:</h6>
+                        <a class="collapse-item" href="${contextPath}/mail/folder/list">받은메일함</a>
+                        <a class="collapse-item" href="${contextPath}/mail/folder/send">보낸메일함</a>
+                        <a class="collapse-item" href="${contextPath}/mail/folder/trash">휴지통</a>
+                        <a class="collapse-item" href="${contextPath}/mail/write">메일쓰기</a>
+                    </div>
+                </div>
             </li>
             
               <!-- Nav Item - Tables -->
@@ -351,12 +356,20 @@
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
-                            </a>
+                                <c:if test="${loginEmp != null}">
+	                            	<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+	                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">${loginEmp.name}님 반갑습니다.</span>
+		                                <img class="img-profile rounded-circle"
+		                                    src="${contextPath}/resources/images/defaultProfile.png">
+	                                </a>
+                                </c:if>
+                                <c:if test="${loginEmp == null}">
+                                	<a class="nav-link dropdown-toggle" href="${contextPath}/user/login/form" id="userDropdown" role="button"
+                                	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	                                	<span class="mr-2 d-none d-lg-inline text-gray-600 small">로그인을 해주세요.</span>
+		                            </a>
+                                </c:if>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">

@@ -41,9 +41,11 @@ public class AnonyCommentServiceImpl implements AnonyCommentService {
 				.anonyNo(anonyNo)
 				.user(EmployeesDTO.builder().empNo(empNo).build())
 				.build();
-		
+		// 수정
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("isAdd", commentMapper.insertComment(comment) == 1);
+		if(commentMapper.insertComment(comment) == 1) {
+			result.put("isSuccess", commentMapper.updateGroupNo(comment) == 1);
+		}
 		return result;
 		
 	}
@@ -60,8 +62,8 @@ public class AnonyCommentServiceImpl implements AnonyCommentService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("anonyNo", anonyNo);
-		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("begin", pageUtil.getBegin() - 1);
+		map.put("recordPerPage", pageUtil.getRecordPerPage());
 		
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("commentList", commentMapper.selectCommentList(map));

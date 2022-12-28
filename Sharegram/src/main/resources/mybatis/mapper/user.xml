@@ -38,7 +38,7 @@
 
 	<!-- 아이디 중복체크, 로그인, 마이페이지 가기 전 비밀번호 확인 -->
 	<select id="selectEmpByMap" parameterType="Map" resultType="EmployeesDTO">
-		SELECT EMP_NO, EMP_PW, NAME, BIRTHYEAR, BIRTHDAY, JOIN_DATE, PROF_IMG, INFO_MODIFY_DATE, STATUS, SALARY, JOB_NO, JOB_NO, PHONE
+		SELECT EMP_NO, EMP_PW, NAME, BIRTHYEAR, BIRTHDAY, JOIN_DATE, INFO_MODIFY_DATE, STATUS, SALARY, JOB_NO, JOB_NO, PHONE
 		  FROM EMPLOYEES
 		<where>
 			 <if test="empNo != null">
@@ -60,8 +60,8 @@
 	<!-- 직원 등록하기 -->
 	<insert id="insertEmp" parameterType="EmployeesDTO" >
 		<selectKey keyProperty="empNo" resultType="int" order="BEFORE">
-			SELECT TO_NUMBER(TO_CHAR(SYSDATE,'YYMM')) || LPAD(EMP_SEQ.NEXTVAL,4,0)
-				FROM DUAL
+			SELECT CONCAT(CAST(DATE_FORMAT(SYSDATE(),'%y%m') AS UNSIGNED), LPAD(IFNULL(MAX(NO) + 1, 1),4,'0') )
+  			  FROM EMPLOYEES;
 		</selectKey> 
 		INSERT INTO 
 			EMPLOYEES
@@ -69,7 +69,7 @@
 			 VALUES
 		 		<!-- 사번: 입사년도,월 두자리+emp_seq.nextval로 이루어짐-->
 		 		( #{empNo},
-		 	  #{empPw},#{name}, #{birthyear} ,#{birthday}, SYSDATE, SYSDATE, #{salary}, #{jobNo}, #{deptNo}, #{phone}, #{status} )
+		 	  #{empPw},#{name}, #{birthyear} ,#{birthday}, NOW(), NOW(), #{salary}, #{jobNo}, #{deptNo}, #{phone}, #{status} )
 	</insert>
 	
 	<!-- 퇴사자 : RETIRED 테이블에 추가 -->
@@ -77,7 +77,7 @@
 		INSERT INTO RETIRED
 			(EMP_NO , NAME , PHONE,JOIN_DATE,RETIRED_DATE,JOB_NO,DEPT_NO)
 		VALUES
-			(#{empNo}, #{name}, #{phone}, #{jobNo}, #{deptNo}, #{joinDate}, SYSDATE )
+			(#{empNo}, #{name}, #{phone}, #{jobNo}, #{deptNo}, #{joinDate}, NOW() )
 	</insert>
 	
 	
@@ -92,7 +92,7 @@
 		     , STATUS=#{status}
 		     , JOB_NO=#{jobNo}
 		     , DEPT_NO=#{deptNo}
-		     , INFO_MODIFY_DATE=SYSDATE
+		     , INFO_MODIFY_DATE=NOW()
 		WHERE EMP_NO =#{empNo}	
 		
 		<!-- 직책이 부장일경우 공지사항 작성 가능-->
@@ -120,7 +120,7 @@
 		   SET PROF_IMG = #{profImg}
 		     , PHONE = #{phone}
 		     , STATUS= #{status}
-		     , INFO_MODIFY_DATE= SYSDATE
+		     , INFO_MODIFY_DATE= NOW()
 		 WHERE EMP_NO = #{empNo}
 	</update>
 	
@@ -145,15 +145,12 @@
 
 	
 	<select id="selectEmpByPage" parameterType="Map" resultMap="EmpMap">
-		   SELECT B.*
-             FROM (SELECT ROWNUM AS RN, AA.*
-             FROM (SELECT  A.*, P.JOB_NAME
-              FROM(SELECT E.*, D.DEPT_NAME
-                     FROM DEPARTMENTS D RIGHT OUTER JOIN EMPLOYEES E
-                       ON D.DEPT_NO = E.DEPT_NO
-                       )A JOIN POSITION P
-                       ON A.JOB_NO =P.JOB_NO)AA)B
- 		      WHERE B.RN BETWEEN #{begin} AND #{end}
+		   SELECT E.*, D.DEPT_NAME, P.JOB_NO
+  			 FROM DEPARTMENTS D INNER JOIN EMPLOYEES E
+    		   ON D.DEPT_NO = E.DEPT_NO
+ 			INNER JOIN EMP_POSITION P
+    		   ON E.JOB_NO = P.JOB_NO
+    		LIMIT #{begin}, #{recordPerPage};
    </select>
 	
 	

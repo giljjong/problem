@@ -107,8 +107,8 @@ public class EmpServiceImpl implements EmpService {
 //						.profImg(profImg)
 						.status(status)
 						.salary(salary)
-						.jobNo(1)
-						.deptNo(20)
+						.jobNo(4)
+						.deptNo(11)
 						.build();
 		
 		System.out.println("전 : " + emp);	
@@ -141,8 +141,9 @@ public class EmpServiceImpl implements EmpService {
 						.name(name)
 						.email(email)
 						.password(password)
-						.deptNo(30)
-						.jobNo(2)
+						.phone(phone)
+						.deptNo(emp.getDeptNo())
+						.jobNo(emp.getJobNo())
 						.build();
 				
 				int mailResult = mailMapper.insertJamesUser(empInfo);
@@ -444,8 +445,8 @@ public class EmpServiceImpl implements EmpService {
 		
 		
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("begin", pageUtil.getBegin());
-		map.put("end", pageUtil.getEnd());
+		map.put("begin", pageUtil.getBegin() - 1);
+		map.put("recordPerPage", pageUtil.getRecordPerPage());
 		
 		
 		// begin end 목록 가져오기

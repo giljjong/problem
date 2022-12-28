@@ -57,6 +57,7 @@ public class MailController {
 	@ResponseBody
 	@PostMapping("/mail/send")
 	public Map<String, Object> save(MultipartHttpServletRequest multipartRequest, MailDTO mail) {
+		System.out.println(mail.toString());
 		return mailService.saveMail(multipartRequest, mail);
 	}
 	

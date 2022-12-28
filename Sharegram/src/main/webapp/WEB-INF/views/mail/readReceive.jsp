@@ -7,6 +7,7 @@
 	<jsp:include page="../layout/header.jsp">
 		<jsp:param value="${mail.subject}" name="title" />
 	</jsp:include>
+	
 <style>
 	ul{
 	   list-style:none;
@@ -89,8 +90,8 @@
 </script>
 </head>
 <body>
-	<div>
-		<div>
+	<div class="mail_body_wrap" style="padding-left:65px;">
+		<div class="mail_body">
 			<div><h3>보낸메일함</h3></div>
 			<div class="cnt_info">
 					<span class="info_text">전체메일</span> <span class="cnt_mail">${nReadCnt} / ${totalRecord}</span>
@@ -129,40 +130,42 @@
 							</c:if>
 						</c:forEach>
 					</div>
+					<form name="write_frm" class="blind">
 						<input type="hidden" name="receiveType" value="${receivData.receiveType}">
 						<input type="hidden" name="readCheck" id="readCheck" value="${mail.readCheck}">
-					<form name="write_frm" class="blind">
 						<input type="hidden" name="email">
 						<input type="hidden" name="mailNo" id="mailNo" value="${mail.mailNo}">
 						<input type="hidden" name="deleteCheck" value="${receivData.deleteCheck}">
 					</form>
 					<span>${mail.receiveDate}</span>
-					<div class="file_wrap">
-						<div>
-							<strong>첨부 ${attachCnt}개</strong>
-							<a href="${contextPath}/mail/downloadAll?mailNo=${mail.mailNo}">모두 저장</a>
+					<c:if test="${attachCnt != 0}">
+						<div class="file_wrap">
+							<div>
+								<strong>첨부 ${attachCnt}개</strong>
+								<a href="${contextPath}/mail/downloadAll?mailNo=${mail.mailNo}">모두 저장</a>
+							</div>
+							<div class="file_box">
+								<ul>
+									<c:forEach items="${attachList}" var="attach">
+										<li class="img_line">
+											<a href="${contextPath}/mail/download?fileNo=${attach.fileNo}">
+												<c:if test="${attach.hasThumbnail == 1}">
+														<img src="${contextPath}/mail/download?fileNo=${attach.fileNo}" class="attach_img" title="${attach.originName}">
+												</c:if>
+												<c:if test="${attach.hasThumbnail == 0}">
+													<img src="${contextPath}/resources/images/attach.png" width="50px" class="attach_img" title="${attach.originName}">
+												</c:if>
+												<span class="file_name">${attach.originName}</span>
+											</a>
+										</li>
+									</c:forEach>
+								</ul>
+							</div>
+							<br><br>
+							<div>
+							</div>
 						</div>
-						<div class="file_box">
-							<ul>
-								<c:forEach items="${attachList}" var="attach">
-									<li class="img_line">
-										<a href="${contextPath}/mail/download?fileNo=${attach.fileNo}">
-											<c:if test="${attach.hasThumbnail == 1}">
-													<img src="${contextPath}/mail/download?fileNo=${attach.fileNo}" class="attach_img" title="${attach.originName}">
-											</c:if>
-											<c:if test="${attach.hasThumbnail == 0}">
-												<img src="${contextPath}/resources/images/attach.png" width="50px" class="attach_img" title="${attach.originName}">
-											</c:if>
-											<span class="file_name">${attach.originName}</span>
-										</a>
-									</li>
-								</c:forEach>
-							</ul>
-						</div>
-						<br><br>
-						<div>
-						</div>
-					</div>
+					</c:if>
 					<hr>
 				</div>
 				<div>
@@ -172,4 +175,5 @@
 		</div>
 	</div>
 
-	<%@ include file="../layout/footer.jsp" %>
+</body>
+</html>
