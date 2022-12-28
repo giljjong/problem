@@ -8,6 +8,8 @@
 		<jsp:param value="${mail.subject}" name="title" />
 	</jsp:include>
 	
+<link href="${contextPath}/resources/css/mailCss/mail_detail.css" rel="stylesheet" type="text/css">
+	
 <style>
 	ul{
 	   list-style:none;
@@ -92,38 +94,46 @@
 <body>
 	<div class="mail_body_wrap" style="padding-left:65px;">
 		<div class="mail_body">
-			<div><h3>보낸메일함</h3></div>
-			<div class="cnt_info">
-					<span class="info_text">전체메일</span> <span class="cnt_mail">${nReadCnt} / ${totalRecord}</span>
+			<div>
+				<span class="title_text">보낸메일함</span>
+				<span class="info_text">전체메일</span> <span class="cnt_mail">${nReadCnt} / ${totalRecord}</span>
 			</div>
+			
+			<hr>
+			
 			<div class="mail_toolbar">
-				<div class="mail_cnt_tool">
-					<a href="javascript:fn_goReply('${contextPath}/mail/write/reply')">답장</a>
-					<a href="javascript:fn_goReply('${contextPath}/mail/write/delivery')">전달</a>
-					<a href="#">삭제</a>
-					<a href="#" onClick="fn_notReadChange();">안읽음</a>
+				<div class="btn_wrap_content">
+					<a href="javascript:fn_goReply('${contextPath}/mail/write/reply')" class="mail_btn">답장</a>
+					<a href="javascript:fn_goReply('${contextPath}/mail/write/delivery')" class="mail_btn">전달</a>
+					<a href="#" class="mail_btn">삭제</a>
+					<a href="#" onClick="fn_notReadChange();" class="mail_btn">안읽음</a>
 				</div>
 				<div class="mail_list_tool">
-					<a href="${contextPath}/mail/folder/list">목록</a>
-					<a href="#">△</a>
-					<a href="#">▽</a>
+					<a href="${contextPath}/mail/folder/list" class="hovertool list_text">목록</a>
+					<a href="#" class="hovertool upDown_text">△</a>
+					<a href="#" class="hovertool upDown_text">▽</a>
 				</div>
 			</div>
 			<hr>
 			<div>
 				<div>
-					<i class="fa-regular fa-star"></i>
-					<strong>${mail.subject}</strong><br>
-					<span>보낸사람</span> <a href="javascript:fn_goWrite('${mail.sender}')"><span>${mail.empName}&lt;${mail.sender}&gt;</span></a><br>
-					<span>받는사람</span>
-						<c:forEach items="${addrList}" var="addr" >
-							<c:if test="${addr.receiveType eq 'To'}">
-								<a href="javascript:fn_goWrite('${addr.email}')"><span>${addr.name}&lt;${addr.email}&gt;</span></a>
-							</c:if>
-						</c:forEach>
-					<br>
-					<div class="cc_toggle_div blind">
-						<span>참조</span>
+					<div class="mail_subject">
+						<i class="fa-regular fa-star" style="font-size:16px;"></i>
+						<span><strong>${mail.subject}</strong></span>
+					</div>
+					<div class="info_div">
+						<span class="receive_info"><strong>보낸사람</strong></span> <a href="javascript:fn_goWrite('${mail.sender}')" class="mail_sender"><span>${mail.empName}&lt;${mail.sender}&gt;</span></a><br>
+					</div>
+					<div class="info_div">
+						<span class="receive_info"><strong>받는사람</strong></span>
+							<c:forEach items="${addrList}" var="addr" >
+								<c:if test="${addr.receiveType eq 'To'}">
+									<a href="javascript:fn_goWrite('${addr.email}')" class="mail_receiver"><span>${addr.name}&lt;${addr.email}&gt;</span></a>
+								</c:if>
+							</c:forEach>
+					</div>
+					<div class="cc_toggle_div blind info_div">
+						<span class="receive_info"><strong>참조</strong></span>
 						<c:forEach items="${addrList}" var="addr" >
 							<c:if test="${addr.receiveType eq 'cc'}">
 								<span class="cc_Span">${addr.name}&lt;${addr.email}&gt;</span>
@@ -137,7 +147,7 @@
 						<input type="hidden" name="mailNo" id="mailNo" value="${mail.mailNo}">
 						<input type="hidden" name="deleteCheck" value="${receivData.deleteCheck}">
 					</form>
-					<span>${mail.receiveDate}</span>
+					<span style="font-size:13px; color:#767678;">${mail.receiveDate}</span>
 					<c:if test="${attachCnt != 0}">
 						<div class="file_wrap">
 							<div>
@@ -168,12 +178,11 @@
 					</c:if>
 					<hr>
 				</div>
-				<div>
+				<div class="mail_content">
 					${mail.mailContent}
 				</div>
 			</div>
 		</div>
 	</div>
 
-</body>
-</html>
+<%@ include file="../layout/footer.jsp" %>

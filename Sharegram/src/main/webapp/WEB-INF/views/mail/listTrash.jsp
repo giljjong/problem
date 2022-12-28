@@ -240,40 +240,31 @@ function fn_checkChoice(){
 <body>
 	<div class="mail_body_wrap" style="padding-left:65px;">
 		<div class="mail_body">
-			<ul class="smart_toolbar">
-				<li><a href="${contextPath}/mail/folder/list">받은메일함</a></li>
-				<li><a href="${contextPath}/mail/folder/send">보낸메일함</a></li>
-				<li><a href="${contextPath}/mail/folder/trash">휴지통</a></li>
-				<li><a href="${contextPath}/mail/write">메일쓰기</a></li>
-			</ul>
+
 		</div>
 		
 		<hr>
 		
-		<div>
+		<div style="min-height:800px;">
 			<div>
 				<div class="cnt_info">
 					<span class="title_text">휴지통</span>
 					<span class="cnt_text">전체메일</span> <span class="cnt_mail cnt_text"></span>
 				</div>
-				<div class="mail_toolbar">
-					<div class="btn_group">
-						<div><input type="checkbox" id="check_all" class="lbl_all"></div>
-						<div><button class="btn_toggle btn_readChg">읽음</button></div>
-						<div><button class="btn_toggle restore"><span class="text">복원</span></button></div>
-						<div><button class="btn_toggle delete"><span class="text">영구삭제</span></button></div>
-					</div>
-					<div class="btn_group">
+				
+				<hr>
+				
+				<div class="btn_wrap_content" style="width:500px;">
+						<div><input type="checkbox" id="check_all" class="lbl_all" style="margin-left:17px;"></div>
+						<div><button class="btn_toggle btn_readChg mail_btn" style="margin-left:5px;">읽음</button></div>
+						<div><button class="btn_toggle restore mail_btn"><span class="text">복원</span></button></div>
+						<div><button class="btn_toggle delete mail_btn"><span class="text">영구삭제</span></button></div>
 						<div><span class="snb_bar"></span></div>
-						<div><button class="btn_toggle"><span class="text">답장</span></button></div>
-						<div><button class="btn_toggle"><span class="text">전달</span></button></div>
-					</div>
-					<div class="btn_group">
+						<div><button class="btn_toggle mail_btn"><span class="text">답장</span></button></div>
+						<div><button class="btn_toggle mail_btn"><span class="text">전달</span></button></div>
 						<div><span class="snb_bar"></span></div>
-						<div><button class="btn_toggle"><span class="text">이동</span></button></div>
-						<div><button class="btn_toggle"><span class="text">읽음표시</span></button></div>
-						<div><button class="btn_toggle"><span class="text">주소록에추가</span></button></div>
-					</div>
+						<div><button class="btn_toggle mail_btn"><span class="text">이동</span></button></div>
+						<div><button class="btn_toggle mail_btn"><span class="text">읽음표시</span></button></div>
 				</div>
 			</div>
 			
@@ -292,11 +283,12 @@ function fn_checkChoice(){
 						<input type="hidden" name="in" id="in" value="trash">
 					</form>
 				</div>
-				<div id="paging">
-				</div>
+			</div>
+		</div>
+		<div style="width:600px;">
+			<div id="paging">
 			</div>
 		</div>
 	</div>
 	
-</body>
-</html>
+<%@ include file="../layout/footer.jsp" %>

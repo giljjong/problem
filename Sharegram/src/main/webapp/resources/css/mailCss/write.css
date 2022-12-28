@@ -1,5 +1,7 @@
 @charset "UTF-8";
 
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
 .mail_body{
 	    overflow: auto; 
 	    width: 85%; 
@@ -13,7 +15,7 @@
   	}
   	
 	.title_text{
-	    font-size: 22px;
+	    font-size: 25px;
 	    font-weight: 500;
 	    margin-right: 10px;
 	}
@@ -110,7 +112,6 @@
 	    color: #ff5353;
 	    margin-left: 5px;
 	}
-	
 	.filebox {
 		padding-top : -16px;
 	}

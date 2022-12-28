@@ -93,10 +93,6 @@ public class MailServiceImpl implements MailService {
     		List<MailAtchDTO> atch = new ArrayList<>();
     		String[] fileNos = multipartRequest.getParameterValues("fileNo");
     		
-    		System.out.println("========================================1111");
-    		System.out.println(mail.getMailNo());
-    		System.out.println("========================================");
-    		
     		if(fileNos !=  null) {
     			for(int i = 0; i < fileNos.length; i++) {
     				MailAtchDTO mailAtach = mailMapper.selectMailAttachByFileNo(Integer.parseInt(fileNos[i]));
@@ -205,9 +201,10 @@ public class MailServiceImpl implements MailService {
     			
     			List<EmployeesDTO> empList = mailMapper.selectAllEmpList();
     			for(EmployeesDTO emp : empList) {
-    				if(mailReceiver.equals(emp.getName())) {
+    				if(mailReceiver.equals(emp.getEmpNo() + "")) {
     					cnt += 1;
     				}
+    				
     			}
     			if(cnt > 0) {
     				receiveEmp = Integer.parseInt(mailReceiver);
@@ -229,10 +226,6 @@ public class MailServiceImpl implements MailService {
         			receiveEmp = Integer.parseInt(toCcs[i].substring(0, toCcs[i].indexOf("@")));
         			map.put("empNo", receiveEmp);
         			map.put("mailNo", mail.getMailNo());
-        			
-        			System.out.println("=====================");
-        			System.out.println(mail.getMailNo());
-        			System.out.println("=====================");
         			
         			if(empMapper.selectEmpByMap(map) != null) {
         				map.put("receiveType", "cc");

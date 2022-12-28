@@ -1,0 +1,164 @@
+@charset "UTF-8";
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+	
+	.mail_body_wrap {
+		height : 100%;
+	}
+	
+	.mail_body{
+	    overflow: auto; 
+	    width: 85%; 
+	    height: 100%;
+	    padding: 25px 25px 0px 25px;
+	}
+	
+	input{
+	    height: 30px;
+	    border: 1px solid #ddd;
+  	}
+  	
+	.title_text{
+	    font-size: 25px;
+	    font-weight: 500;
+	    margin-right: 10px;
+	}
+	
+	.btn_wrap_content{
+	    width: 380px;
+	    height : 25px;
+	    display: flex;
+	    justify-content: space-between;
+	    margin: 5px 0px 0px 0px;
+	}
+	
+	.mail_btn{
+		background-color : #f8f9fa;
+	    width: 80px;
+	    height: 36px;
+	    line-height: 20px;
+	    border: none;
+	    border-radius: 8px;
+	    font-size: 16px;
+	    color: #202020;
+	    display: flex;
+	    justify-content: center;
+	    padding-top : 5px;
+	}
+	
+	.mail_btn:hover{
+		border: 2px solid #4e73df;
+		color: #4e73df;
+	}
+	
+	ul{
+		   list-style:none;
+		   padding-left:10px;
+	}
+
+	.mail_toolbar {
+		display : flex;
+	}
+	
+	.mail_list_tool {
+		padding-top : 5px;
+		margin-left: auto;
+		width : 120px;
+	}
+	
+	.list_text {
+		display : inline-block;
+		width : 50px;
+		text-align : center;
+		height : 25px;
+	}
+	
+	.upDown_text {
+		display : inline-block;
+		width : 30px;
+		text-align : center;
+		height : 25px;
+	}
+	
+	.hovertool:hover {
+		background-color : #e3e3e3;
+		border-radius : 4px;
+	}
+	
+	.blind {
+		display : none;
+	}
+	
+	.attach_img {
+		width : 38px;
+		width : 45px;
+		border-radius : 3px;
+	}
+	
+	.file_name {
+		padding-left : 10px;
+	}
+	
+	.file_box {
+		border : 1px solid lightgray;
+		width : 700px;
+	}
+	
+	.file_wrap a {
+		text-decoration : none;
+		color : #999;
+	}
+	
+	 a {
+	 	color : #202020;
+	 	text-decoration: none;
+	 	outline: none;
+	 }
+
+	 a:hover, a:active {
+ 		text-decoration: none;
+	}
+	
+	hr {
+		margin-bottom: 0.5rem;
+	}
+	
+	.mail_sender {
+	    padding: 4px 10px;
+	    background-color: rgba(100, 177, 210, 0.4);
+	    border : 1px solid rgb(206, 248, 300);
+	    border-radius: 10px;
+	}
+	
+	.info_div {
+		margin-bottom : 15px;
+	}
+	
+	.cc_toggle_div {
+		margint-top : 12px;
+	}
+	
+	.mail_subject {
+		margin: 10px;
+		font-size: 20px;
+	}
+	
+	.mail_receiver{
+	    padding: 4px 10px;
+	    background-color: #fed5d5;
+	    border: 1px solid #ffc3b4;
+	    border-radius: 10px;
+	}
+	
+	.receive_info {
+		font-size : 15px;
+	}
+	
+	.mail_content {
+	    width: 100%;
+	    background-color: white;
+	    border : 1px solid rgb(224, 224, 224);
+	    border-radius: 10px;
+	    min-height: 500px;
+	    padding: 20px;
+	}

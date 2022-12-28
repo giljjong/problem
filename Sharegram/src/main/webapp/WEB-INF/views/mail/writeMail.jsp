@@ -13,125 +13,9 @@
 <script src="${contextPath}/resources/summernote-0.8.18-dist/lang/summernote-ko-KR.min.js"></script>
 <link rel="stylesheet" href="${contextPath}/resources/summernote-0.8.18-dist/summernote-lite.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="${contextPath}/resources/css/mailCss/write.css" rel="stylesheet" type="text/css">
 
-<style>
-	@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-	.mail_body{
-	    overflow: auto; 
-	    width: 85%; 
-	    height: 100%; 
-	    padding: 25px 25px 0px 25px;
-	}
-	
-	input{
-	    height: 30px;
-	    border: 1px solid #ddd;
-  	}
-  	
-	.title_text{
-	    font-size: 22px;
-	    font-weight: 500;
-	    margin-right: 10px;
-	}
-	
-	.btn_wrap_content{
-	    width: 380px;
-	    height : 25px;
-	    display: flex;
-	    justify-content: space-between;
-	    margin: -10px 0px 5px 0px;
-	}
-	
-	.mail_btn{
-		background-color : #f8f9fa;
-	    width: 80px;
-	    height: 36px;
-	    line-height: 20px;
-	    border: none;
-	    border-radius: 8px;
-	    font-size: 15px;
-	    color: #202020;
-	    display: flex;
-	    justify-content: center;
-	}
-	
-	.mail_btn:hover{
-		border: 2px solid #4e73df;
-		color: #4e73df;
-	}
-	
-	.input_box{
-		width: 70%;
-	}
-	
-	.upload_file {
-	  margin: 0;
-	  padding: 0;
-	  box-sizing: border-box;
-	  font-family: Pretendard, 'Malgun Gothic', sans-serif;
-	}
-
-	.upload_file {
-	  width: 60vw;
-	  height: 10vh;
-	   
-	  margin: .6rem;
-	  overflow: auto;
-	  
-	  display: flex;
-	  justify-content: center;
-	  align-items: center;
-	
-	  border-radius: 5px;
-	  border: 4px dashed #ddd;
-	  user-select: none;
-	  transition: 0.4s;
-	}
-	
-	.attach_btn {
-		display : inline-block;
-		width : 70px;
-		height : 30px;
-		font-size : 15px;
-		font-weight : 700;
-		border : 1px solid darkgray;
-		border-radius : 8px;
-		text-align : center;
-		padding-top : 3px;
-	}
-	
-	.attach_btn:hover {
-		cursor : pointer;
-	}
-
-	/* 드롭 반응 */
-	.upload_file.active {
-	  background: #ddd;
-	}
-	
-	.blind {
-		display: none;
-	}
-	
-	.addfile_msg, .addfile_list {
-		font-size : 1.2rem;
-	}
-	
-	.addfile_list {
-		padding-left : 14px;
-	}
-	
-	
-	.delete i{
-	    color: #ff5353;
-	    margin-left: 5px;
-	}
-	.filebox {
-		padding-top : -16px;
-	}
-	
-</style>
 <script>
 
 		$(function(){
@@ -512,5 +396,4 @@
 		</div>
 	</div>
 
-</body>
-</html>
+<%@ include file="../layout/footer.jsp" %>

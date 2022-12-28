@@ -60,8 +60,8 @@
 	<!-- 직원 등록하기 -->
 	<insert id="insertEmp" parameterType="EmployeesDTO" >
 		<selectKey keyProperty="empNo" resultType="int" order="BEFORE">
-			SELECT CONCAT(CAST(DATE_FORMAT(SYSDATE(),'%y%m') AS UNSIGNED), LPAD(IFNULL(MAX(NO) + 1, 1),4,'0') )
-  			  FROM EMPLOYEES;
+			SELECT CONCAT(CAST(DATE_FORMAT(SYSDATE(),'%y%m') AS UNSIGNED), LPAD(IFNULL(MAX(NO) + 1, 1),4,'0'))
+  			  FROM EMPLOYEES
 		</selectKey> 
 		INSERT INTO 
 			EMPLOYEES

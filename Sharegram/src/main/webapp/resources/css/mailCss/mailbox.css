@@ -17,7 +17,7 @@
   	}
   	
 	.title_text{
-	    font-size: 22px;
+	    font-size: 25px;
 	    font-weight: 500;
 	    margin-right: 10px;
 	}
@@ -62,7 +62,7 @@
 	
 	#mailBody > tr {
 		border-bottom : 1px solid lightgray;
-		font-size : 20px;
+		font-size : 18px;
 	}
 	
 	.mail_body_wrap {
@@ -95,5 +95,55 @@
 	
 	hr {
 		margin-bottom: 0.5rem;
+	}
+	
+	.subject_tr {
+		color : #202020;
+	}
+	
+	 a {
+	 	color : #202020;
+	 	text-decoration: none;
+	 	outline: none;
+	 }
+
+	 a:hover, a:active {
+ 		text-decoration: none;
+	}
+	
+	.btn_wrap_content{
+	    width: 380px;
+	    height : 25px;
+	    display: flex;
+	    justify-content: space-between;
+	    margin: 0px 0px 0px 0px;
+	}	
+	
+	.mail_btn{
+		background-color : #f8f9fa;
+	    width: 80px;
+	    height: 36px;
+	    line-height: 20px;
+	    border: none;
+	    border-radius: 8px;
+	    font-size: 15px;
+	    color: #202020;
+	    display: flex;
+	    justify-content: center;
+	    padding-top : 5px;
+	}
+	
+	.mail_btn:hover{
+		border: 2px solid #92a5a0;
+		color: #202020;
+	}
+	
+	table {
+		margin-top : -8px;
+	}
+	
+	#paging {
+		width : 450px;
+		mragin : 0 auto;
 	}
 	
